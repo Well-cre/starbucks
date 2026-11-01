@@ -1,112 +1,94 @@
-"""SPEC DO pipeline/transformacao.py (CAMADA SILVER)
+"""SPEC DO pipeline/transformacao.py (CAMADA SILVER TRADUZIDA)
 
 Executável pela linha de comando via:
   uv run python -m pipeline.transformacao
 
 1. ESCOPO E REGRAS DE ISOLAMENTO
-   - Ler `bronze.pedidos_starbucks` sem alterar nem escrever no schema `bronze`.
-   - Criar e popular no schema `silver` as tabelas relacionais `clientes`,
-     `lojas` e `pedidos`.
+   - Ler `bronze.pedidos_starbucks`. Nunca alterar nem escrever no schema
+     `bronze`.
+   - Criar e popular no schema `silver` as tabelas relacionais:
+     `silver.clientes`, `silver.lojas` e `silver.pedidos`.
 
-2. MAPEAMENTO E TIPAGEM ESTRITA DE COLUNAS
-   a) `silver.clientes`: customer_id VARCHAR (PK), customer_age_group VARCHAR,
-      customer_gender VARCHAR e is_rewards_member BOOLEAN. Deduplicar por
-      customer_id com MAX(is_rewards_member), MAX(customer_age_group) e
-      MAX(customer_gender), garantindo uma linha por cliente.
-   b) `silver.lojas`: store_id VARCHAR (PK), store_location_type VARCHAR e
-      region VARCHAR. Deduplicar por store_id usando FIRST(store_location_type)
-      e FIRST(region), garantindo uma linha por loja.
-   c) `silver.pedidos`: order_id VARCHAR (PK), customer_id e store_id VARCHAR,
-      order_date DATE, order_time TIME, day_of_week e order_channel VARCHAR,
-      cart_size e num_customizations INTEGER, total_spend DECIMAL(10,2),
-      fulfillment_time_min DOUBLE, drink_category VARCHAR,
-      has_food_item e order_ahead BOOLEAN e customer_satisfaction INTEGER.
-      Manter todos os 100.000 pedidos tipados.
+2. MAPEAMENTO, TRADUÇÃO E TIPAGEM ESTRITA DE COLUNAS
+   a) `silver.clientes`
+      - customer_id -> cliente_id (VARCHAR - Chave Primária)
+      - customer_age_group -> faixa_etaria (VARCHAR)
+      - customer_gender -> genero (VARCHAR)
+      - is_rewards_member -> membro_fidelidade (BOOLEAN)
+      - Deduplicar por `cliente_id` usando MAX(membro_fidelidade),
+        MAX(faixa_etaria) e MAX(genero), com uma linha por cliente.
+   b) `silver.lojas`
+      - store_id -> loja_id (VARCHAR - Chave Primária)
+      - store_location_type -> tipo_localizacao (VARCHAR)
+      - region -> regiao (VARCHAR)
+      - Deduplicar por `loja_id` usando FIRST(tipo_localizacao) e FIRST(regiao),
+        com uma linha por loja.
+   c) `silver.pedidos`
+      - order_id -> pedido_id (VARCHAR - Chave Primária)
+      - customer_id -> cliente_id (VARCHAR - FK -> silver.clientes)
+      - store_id -> loja_id (VARCHAR - FK -> silver.lojas)
+      - order_date -> data_pedido (DATE - strptime/CAST '%Y-%m-%d')
+      - order_time -> hora_pedido (TIME - strptime/CAST '%H:%M')
+      - day_of_week -> dia_semana (VARCHAR), traduzindo:
+        Monday -> Segunda-feira, Tuesday -> Terça-feira,
+        Wednesday -> Quarta-feira, Thursday -> Quinta-feira,
+        Friday -> Sexta-feira, Saturday -> Sábado, Sunday -> Domingo.
+      - order_channel -> canal_pedido (VARCHAR)
+      - cart_size -> tamanho_carrinho (INTEGER)
+      - num_customizations -> qtd_customizacoes (INTEGER)
+      - total_spend -> valor_total (DECIMAL(10,2))
+      - fulfillment_time_min -> tempo_atendimento_min (DOUBLE)
+      - drink_category -> categoria_bebida (VARCHAR)
+      - has_food_item -> possui_alimento (BOOLEAN)
+      - order_ahead -> pedido_antecipado (BOOLEAN)
+      - customer_satisfaction -> satisfacao_cliente (INTEGER)
+      - Manter todos os 100.000 registros de pedidos tipados.
 
 3. CONVERSÃO QUE FALHA (SEM NULOS FABRICADOS)
-   - Usar strptime e CAST nativos do DuckDB. Nunca usar TRY_CAST ou
-     try_strptime.
+   - Usar `strptime` e `CAST` nativos do DuckDB. Nunca usar `TRY_CAST` ou
+     `try_strptime`.
 
 4. REEXECUÇÃO IDEMPOTENTE
-   - Usar CREATE OR REPLACE TABLE para todas as tabelas no schema `silver`.
+   - Usar `CREATE OR REPLACE TABLE` para todas as tabelas no schema `silver`.
 
 5. SAÍDA NA TELA (STDOUT)
-   - Reconfigurar stdout para UTF-8.
+   - Reconfigurar stdout para UTF-8 (`sys.stdout.reconfigure(encoding='utf-8')`).
    - Imprimir a contagem de linhas e nulos de cada tabela em `silver`.
-   - Executar e exibir um JOIN entre pedidos, clientes e lojas, validando os
-     100.000 registros.
+   - Executar e exibir um JOIN entre `silver.pedidos`, `silver.clientes` e
+     `silver.lojas`, validando os 100.000 registros.
 """
 
 import sys
-
-import duckdb
 
 from pipeline import db
 
 SCHEMA_DESTINO = "silver"
 TABELA_ORIGEM = "bronze.pedidos_starbucks"
 
-CONVERSOES = {
-    "order_date": (
-        "CAST(strptime(order_date, '%Y-%m-%d') AS DATE)",
-        "CAST(strptime(?, '%Y-%m-%d') AS DATE)",
-    ),
-    "order_time": (
-        "CAST(strptime(order_time, '%H:%M') AS TIME)",
-        "CAST(strptime(?, '%H:%M') AS TIME)",
-    ),
-    "is_rewards_member": (
-        "CAST(is_rewards_member AS BOOLEAN)",
-        "CAST(? AS BOOLEAN)",
-    ),
-    "cart_size": ("CAST(cart_size AS INTEGER)", "CAST(? AS INTEGER)"),
-    "num_customizations": (
-        "CAST(num_customizations AS INTEGER)",
-        "CAST(? AS INTEGER)",
-    ),
-    "total_spend": (
-        "CAST(total_spend AS DECIMAL(10, 2))",
-        "CAST(? AS DECIMAL(10, 2))",
-    ),
-    "fulfillment_time_min": (
-        "CAST(fulfillment_time_min AS DOUBLE)",
-        "CAST(? AS DOUBLE)",
-    ),
-    "has_food_item": (
-        "CAST(has_food_item AS BOOLEAN)",
-        "CAST(? AS BOOLEAN)",
-    ),
-    "order_ahead": ("CAST(order_ahead AS BOOLEAN)", "CAST(? AS BOOLEAN)"),
-    "customer_satisfaction": (
-        "CAST(customer_satisfaction AS INTEGER)",
-        "CAST(? AS INTEGER)",
-    ),
-}
-
 COLUNAS_TABELAS = {
     "clientes": (
-        "customer_id",
-        "customer_age_group",
-        "customer_gender",
-        "is_rewards_member",
+        "cliente_id",
+        "faixa_etaria",
+        "genero",
+        "membro_fidelidade",
     ),
-    "lojas": ("store_id", "store_location_type", "region"),
+    "lojas": ("loja_id", "tipo_localizacao", "regiao"),
     "pedidos": (
-        "order_id",
-        "customer_id",
-        "store_id",
-        "order_date",
-        "order_time",
-        "day_of_week",
-        "order_channel",
-        "cart_size",
-        "num_customizations",
-        "total_spend",
-        "fulfillment_time_min",
-        "drink_category",
-        "has_food_item",
-        "order_ahead",
-        "customer_satisfaction",
+        "pedido_id",
+        "cliente_id",
+        "loja_id",
+        "data_pedido",
+        "hora_pedido",
+        "dia_semana",
+        "canal_pedido",
+        "tamanho_carrinho",
+        "qtd_customizacoes",
+        "valor_total",
+        "tempo_atendimento_min",
+        "categoria_bebida",
+        "possui_alimento",
+        "pedido_antecipado",
+        "satisfacao_cliente",
     ),
 }
 
@@ -114,62 +96,29 @@ COLUNAS_TABELAS = {
 def _tabela_origem_existe(conexao) -> bool:
     return conexao.execute(
         """
-            SELECT EXISTS (
-                SELECT 1
-                FROM information_schema.tables
-                WHERE table_schema = 'bronze'
-                  AND table_name = 'pedidos_starbucks'
-            )
-            """
+        SELECT EXISTS (
+            SELECT 1
+            FROM information_schema.tables
+            WHERE table_schema = 'bronze'
+              AND table_name = 'pedidos_starbucks'
+        )
+        """
     ).fetchone()[0]
-
-
-def _validar_conversoes(conexao) -> None:
-    for coluna, (expressao, expressao_valor) in CONVERSOES.items():
-        try:
-            conexao.execute(
-                f"""
-                SELECT {expressao}
-                FROM {TABELA_ORIGEM}
-                WHERE {coluna} IS NOT NULL
-                """
-            ).fetchall()
-        except duckdb.Error:
-            valores = conexao.execute(
-                f"""
-                SELECT DISTINCT {coluna}
-                FROM {TABELA_ORIGEM}
-                WHERE {coluna} IS NOT NULL
-                """
-            ).fetchall()
-            for (valor,) in valores:
-                try:
-                    conexao.execute(f"SELECT {expressao_valor}", [valor]).fetchone()
-                except duckdb.Error:
-                    print(
-                        f"Falha de conversão em {TABELA_ORIGEM}, "
-                        f"coluna {coluna}: valor inválido {valor!r}."
-                    )
-                    sys.exit(1)
-            raise
 
 
 def _criar_tabelas(conexao) -> None:
     conexao.execute("BEGIN TRANSACTION")
     try:
         conexao.execute(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_DESTINO}")
-
-        # A tabela fato referencia as dimensões; removê-la dentro da transação
-        # permite recriar as dimensões também quando o script já foi executado.
         conexao.execute(f"DROP TABLE IF EXISTS {SCHEMA_DESTINO}.pedidos")
 
         conexao.execute(
             f"""
             CREATE OR REPLACE TABLE {SCHEMA_DESTINO}.clientes (
-                customer_id VARCHAR PRIMARY KEY,
-                customer_age_group VARCHAR,
-                customer_gender VARCHAR,
-                is_rewards_member BOOLEAN
+                cliente_id VARCHAR PRIMARY KEY,
+                faixa_etaria VARCHAR,
+                genero VARCHAR,
+                membro_fidelidade BOOLEAN
             )
             """
         )
@@ -189,9 +138,9 @@ def _criar_tabelas(conexao) -> None:
         conexao.execute(
             f"""
             CREATE OR REPLACE TABLE {SCHEMA_DESTINO}.lojas (
-                store_id VARCHAR PRIMARY KEY,
-                store_location_type VARCHAR,
-                region VARCHAR
+                loja_id VARCHAR PRIMARY KEY,
+                tipo_localizacao VARCHAR,
+                regiao VARCHAR
             )
             """
         )
@@ -210,21 +159,22 @@ def _criar_tabelas(conexao) -> None:
         conexao.execute(
             f"""
             CREATE OR REPLACE TABLE {SCHEMA_DESTINO}.pedidos (
-                order_id VARCHAR PRIMARY KEY,
-                customer_id VARCHAR REFERENCES {SCHEMA_DESTINO}.clientes(customer_id),
-                store_id VARCHAR REFERENCES {SCHEMA_DESTINO}.lojas(store_id),
-                order_date DATE,
-                order_time TIME,
-                day_of_week VARCHAR,
-                order_channel VARCHAR,
-                cart_size INTEGER,
-                num_customizations INTEGER,
-                total_spend DECIMAL(10, 2),
-                fulfillment_time_min DOUBLE,
-                drink_category VARCHAR,
-                has_food_item BOOLEAN,
-                order_ahead BOOLEAN,
-                customer_satisfaction INTEGER
+                pedido_id VARCHAR PRIMARY KEY,
+                cliente_id VARCHAR REFERENCES
+                    {SCHEMA_DESTINO}.clientes(cliente_id),
+                loja_id VARCHAR REFERENCES {SCHEMA_DESTINO}.lojas(loja_id),
+                data_pedido DATE,
+                hora_pedido TIME,
+                dia_semana VARCHAR,
+                canal_pedido VARCHAR,
+                tamanho_carrinho INTEGER,
+                qtd_customizacoes INTEGER,
+                valor_total DECIMAL(10, 2),
+                tempo_atendimento_min DOUBLE,
+                categoria_bebida VARCHAR,
+                possui_alimento BOOLEAN,
+                pedido_antecipado BOOLEAN,
+                satisfacao_cliente INTEGER
             )
             """
         )
@@ -237,7 +187,23 @@ def _criar_tabelas(conexao) -> None:
                 CAST(store_id AS VARCHAR),
                 CAST(strptime(order_date, '%Y-%m-%d') AS DATE),
                 CAST(strptime(order_time, '%H:%M') AS TIME),
-                CAST(day_of_week AS VARCHAR),
+                CASE CAST(day_of_week AS VARCHAR)
+                    WHEN 'Monday' THEN 'Segunda-feira'
+                    WHEN 'Mon' THEN 'Segunda-feira'
+                    WHEN 'Tuesday' THEN 'Terça-feira'
+                    WHEN 'Tue' THEN 'Terça-feira'
+                    WHEN 'Wednesday' THEN 'Quarta-feira'
+                    WHEN 'Wed' THEN 'Quarta-feira'
+                    WHEN 'Thursday' THEN 'Quinta-feira'
+                    WHEN 'Thu' THEN 'Quinta-feira'
+                    WHEN 'Friday' THEN 'Sexta-feira'
+                    WHEN 'Fri' THEN 'Sexta-feira'
+                    WHEN 'Saturday' THEN 'Sábado'
+                    WHEN 'Sat' THEN 'Sábado'
+                    WHEN 'Sunday' THEN 'Domingo'
+                    WHEN 'Sun' THEN 'Domingo'
+                    ELSE CAST(day_of_week AS VARCHAR)
+                END,
                 CAST(order_channel AS VARCHAR),
                 CAST(cart_size AS INTEGER),
                 CAST(num_customizations AS INTEGER),
@@ -281,11 +247,11 @@ def main() -> None:
     try:
         if not _tabela_origem_existe(conexao):
             print(
-                "Execute primeiro a ingestão bronze: uv run python -m pipeline.ingestao"
+                "Execute primeiro a ingestão bronze: "
+                "uv run python -m pipeline.ingestao"
             )
             sys.exit(1)
 
-        _validar_conversoes(conexao)
         _criar_tabelas(conexao)
 
         for tabela in ("clientes", "lojas", "pedidos"):
@@ -293,7 +259,7 @@ def main() -> None:
             print(
                 f"Tabela {SCHEMA_DESTINO}.{tabela}: "
                 f"{_formatar_quantidade(quantidade)} linhas; "
-                f"{_formatar_quantidade(nulos)} nulos mantidos."
+                f"{_formatar_quantidade(nulos)} nulos."
             )
 
         quantidade_join = int(
@@ -302,9 +268,9 @@ def main() -> None:
                 SELECT COUNT(*)
                 FROM {SCHEMA_DESTINO}.pedidos AS p
                 INNER JOIN {SCHEMA_DESTINO}.clientes AS c
-                    ON p.customer_id = c.customer_id
+                    ON p.cliente_id = c.cliente_id
                 INNER JOIN {SCHEMA_DESTINO}.lojas AS l
-                    ON p.store_id = l.store_id
+                    ON p.loja_id = l.loja_id
                 """
             ).fetchone()[0]
         )
@@ -331,4 +297,10 @@ if __name__ == "__main__":
 - A contagem de nulos exibida corresponde ao total de células nulas somadas em
   todas as colunas da respectiva tabela, e não ao número de linhas que contêm
   ao menos um nulo.
+- A coluna `day_of_week` da Bronze contém abreviações inglesas (Mon, Tue, Wed,
+  Thu, Fri, Sat, Sun); elas são traduzidas como as formas completas
+  especificadas.
+- A tabela fato existente é removida dentro da transação antes de recriar as
+  dimensões, permitindo recriar as chaves estrangeiras sem alterar `bronze`.
+- Dias da semana não listados no mapeamento permanecem com o valor original.
 """
