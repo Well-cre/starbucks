@@ -1,0 +1,46 @@
+site_name: Pipeline de Dados Starbucks
+site_description: Documentação técnica da Medallion Architecture no DuckDB
+site_author: Seu Nome
+
+theme:
+  name: material
+  language: pt
+  palette:
+    # Alternador de tema claro/escuro
+    - scheme: default
+      primary: teal
+      accent: deep orange
+      toggle:
+        icon: material/brightness-7
+        name: Mudar para modo escuro
+    - scheme: slate
+      primary: teal
+      accent: deep orange
+      toggle:
+        icon: material/brightness-4
+        name: Mudar para modo claro
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+
+nav:
+  - Home: index.md
+  - Camadas do Pipeline: camadas.md
+  - Testes e Boas Práticas: testes_boas_praticas.md
+  - Guia de Comandos: comandos.md
