@@ -247,8 +247,7 @@ def main() -> None:
     try:
         if not _tabela_origem_existe(conexao):
             print(
-                "Execute primeiro a ingestão bronze: "
-                "uv run python -m pipeline.ingestao"
+                "Execute primeiro a ingestão bronze: uv run python -m pipeline.ingestao"
             )
             sys.exit(1)
 

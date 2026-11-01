@@ -78,9 +78,9 @@ def _tabela_existe(conexao, schema, tabela):
 
 def test_camada_bronze(conexao):
     assert _tabela_existe(conexao, "bronze", "pedidos_starbucks")
-    total = conexao.execute(
-        "SELECT COUNT(*) FROM bronze.pedidos_starbucks"
-    ).fetchone()[0]
+    total = conexao.execute("SELECT COUNT(*) FROM bronze.pedidos_starbucks").fetchone()[
+        0
+    ]
     assert total == 100_000
 
 
