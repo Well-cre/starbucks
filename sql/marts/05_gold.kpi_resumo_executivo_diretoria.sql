@@ -1,3 +1,6 @@
+##(Consolidado de Alto Nível)
+Objetivo de Negócio: Uma visão em linha única contendo os principais cartões (KPI Cards) para o topo do seu dashboard no Streamlit.
+
 CREATE OR REPLACE TABLE gold.kpi_resumo_executivo_diretoria AS
 SELECT
     COUNT(DISTINCT pedido_id) AS total_pedidos,

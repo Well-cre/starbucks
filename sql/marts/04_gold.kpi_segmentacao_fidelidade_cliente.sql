@@ -1,3 +1,6 @@
+##(Engajamento do Consumidor)
+Objetivo de Negócio: Entender o comportamento de compra agrupando os clientes por frequência e valor gasto.
+
 CREATE OR REPLACE TABLE gold.kpi_segmentacao_fidelidade_cliente AS
 SELECT
     p.cliente_id,

@@ -1,3 +1,6 @@
+##(Curva ABC de Produtos)
+Objetivo de Negócio: Classificar os produtos com base em sua contribuição para o faturamento e identificar os mais importantes.
+
 CREATE OR REPLACE TABLE gold.kpi_curva_abc_produtos AS
 SELECT
     categoria_bebida,

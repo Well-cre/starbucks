@@ -1,3 +1,6 @@
+##(Análise de Pico e Turnos)
+Objetivo de Negócio: Mapear o faturamento e o volume de vendas por faixa horária/período do dia (Manhã, Tarde, Noite) para otimização de escalas de funcionários e estoque.
+
 CREATE OR REPLACE TABLE gold.kpi_faturamento_por_periodo_dia AS
 SELECT
     CASE 

@@ -189,6 +189,46 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 
+import sys
+from pathlib import Path
+
+from pipeline import db
+
+SCHEMA_DESTINO = "gold"
+PASTA_SQL = Path("sql/marts")
+
+
+def executar_queries_marts(conexao) -> None:
+    """Lê todos os arquivos .sql da pasta sql/marts e executa no DuckDB."""
+    if not PASTA_SQL.exists():
+        raise FileNotFoundError(f"A pasta {PASTA_SQL} não foi encontrada!")
+
+    arquivos_sql = sorted(PASTA_SQL.glob("*.sql"))
+
+    for arquivo in arquivos_sql:
+        query = arquivo.read_text(encoding="utf-8")
+        conexao.execute(query)
+        print(f"Executado com sucesso: {arquivo.name}")
+
+
+def main() -> None:
+    sys.stdout.reconfigure(encoding="utf-8")
+
+    conexao = db.conectar()
+    try:
+        # Garante que o schema gold exista
+        db.criar_schema(conexao, SCHEMA_DESTINO)
+
+        # Executa cada arquivo .sql contido em sql/marts/
+        executar_queries_marts(conexao)
+
+        print(f"\nCamada {SCHEMA_DESTINO} (Marts) processada com sucesso!")
+    finally:
+        conexao.close()
+
+
+if __name__ == "__main__":
+    main()
 
 """Premissas adotadas:
 - Os marts agrupados exibem no resumo o total de pedidos e faturamento e o
