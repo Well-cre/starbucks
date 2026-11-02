@@ -56,7 +56,7 @@ def conexao_memoria():
 
 def _executar_query_mart(conn: duckdb.DuckDBPyConnection, nome_tabela: str) -> None:
     """Função auxiliar para localizar e executar a query de criação de um mart específico."""
-    query = [q for q in _CRIAR_MARTS if f"gold.{nome_tabela}" in q][0]
+    query = next(q for q in _CRIAR_MARTS if f"gold.{nome_tabela}" in q)
     conn.execute(query)
 
 
