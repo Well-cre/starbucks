@@ -127,10 +127,10 @@ def normalizar(texto: str) -> str:
 
 def regiao_solicitada(pergunta: str) -> str | None:
     termos = {
-        "west": ("oeste", "west"),
-        "north": ("norte", "north"),
-        "south": ("sul", "south"),
-        "east": ("leste", "east"),
+        "west": ("oeste", "west", "zona oeste"),
+        "north": ("norte", "north", "zona norte"),
+        "south": ("sul", "south", "zona sul"),
+        "east": ("leste", "east", "zona leste"),
     }
     for valor, sinonimos in termos.items():
         if any(termo in pergunta for termo in sinonimos):
