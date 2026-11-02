@@ -44,3 +44,10 @@ nav:
   - Camadas do Pipeline: camadas.md
   - Testes e Boas Práticas: testes_boas_praticas.md
   - Guia de Comandos: comandos.md
+
+nav:
+  - Início: index.md
+  - Camadas: camadas.md
+  - Marts: marts.md
+  - Testes: testes.md
+  - Checklist de Conformidade: checklist.md
