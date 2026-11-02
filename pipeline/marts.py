@@ -189,10 +189,7 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 
-import sys
 from pathlib import Path
-
-from pipeline import db
 
 SCHEMA_DESTINO = "gold"
 PASTA_SQL = Path("sql/marts")

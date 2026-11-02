@@ -101,6 +101,12 @@ def carregar_dados(sql: str, parametros: tuple[str, ...] = ()) -> pd.DataFrame:
     return get_connection(str(DATABASE_PATH)).execute(sql, list(parametros)).df()
 
 
+@dataclass
+class RespostaAnalitica:
+    texto: str
+    df: pd.DataFrame | None = None
+
+
 @dataclass(frozen=True)
 class Consulta:
     titulo: str
@@ -134,19 +140,117 @@ def regiao_solicitada(pergunta: str) -> str | None:
 
 def buscar_consulta(pergunta: str) -> Consulta:
     texto = normalizar(pergunta)
-    menciona_lojas = any(
-        termo in texto for termo in ("loja", "lojas", "melhor", "melhores")
-    )
     filtro_regiao = regiao_solicitada(texto)
-
-    if any(termo in texto for termo in ("satisfacao", "nota", "avaliacao")):
+    menciona_lojas = any(
+        termo in texto for termo in ("loja", "lojas", "melhor loja", "melhores lojas")
+    )
+    # PRODUTO + REGIÃO
+    if (
+        any(t in texto for t in ("produto", "produtos", "bebida", "bebidas"))
+        and filtro_regiao
+    ):
+        return Consulta(
+            "Produtos por região",
+            """
+            SELECT
+                p.categoria_bebida AS produto,
+                COUNT(*) AS total_pedidos,
+                SUM(p.valor_total) AS faturamento_total
+            FROM silver.pedidos p
+            INNER JOIN silver.lojas l
+                ON p.loja_id = l.loja_id
+            WHERE LOWER(l.regiao) LIKE ?
+            GROUP BY p.categoria_bebida
+            ORDER BY faturamento_total DESC
+            """,
+            "produto",
+            "faturamento_total",
+            "bar",
+            "Produtos mais vendidos na região",
+            (filtro_regiao,),
+        )
+    # CANAL + REGIÃO
+    if (
+        any(
+            t in texto
+            for t in (
+                "canal",
+                "canais",
+                "mobile",
+                "drive",
+                "presencial",
+            )
+        )
+        and filtro_regiao
+    ):
+        return Consulta(
+            "Canais por região",
+            """
+            SELECT
+                p.canal_pedido,
+                COUNT(*) AS total_pedidos,
+                SUM(p.valor_total) AS faturamento_total
+            FROM silver.pedidos p
+            INNER JOIN silver.lojas l
+                ON p.loja_id = l.loja_id
+            WHERE LOWER(l.regiao) LIKE ?
+            GROUP BY p.canal_pedido
+            ORDER BY faturamento_total DESC
+            """,
+            "canal_pedido",
+            "faturamento_total",
+            "bar",
+            "Desempenho dos canais por região",
+            (filtro_regiao,),
+        )
+    # FAIXA ETÁRIA
+    if any(
+        termo in texto
+        for termo in (
+            "idade",
+            "faixa etaria",
+            "faixa etária",
+            "cliente",
+            "clientes",
+        )
+    ):
+        return Consulta(
+            "Perfil dos clientes",
+            """
+            SELECT
+                c.faixa_etaria,
+                COUNT(*) AS total_pedidos,
+                SUM(p.valor_total) AS faturamento_total
+            FROM silver.pedidos p
+            INNER JOIN silver.clientes c
+                ON p.cliente_id = c.cliente_id
+            GROUP BY c.faixa_etaria
+            ORDER BY faturamento_total DESC
+            """,
+            "faixa_etaria",
+            "faturamento_total",
+            "bar",
+            "Faturamento por faixa etária",
+        )
+    # SATISFAÇÃO
+    if any(
+        termo in texto
+        for termo in (
+            "satisfacao",
+            "satisfação",
+            "avaliacao",
+            "avaliação",
+            "nota",
+        )
+    ):
         return Consulta(
             "Satisfação dos clientes",
             """
-            SELECT satisfacao_cliente AS nota_satisfacao,
-                   quantidade_pedidos AS total_pedidos,
-                   faturamento_total,
-                   tempo_medio_atendimento AS tempo_medio_min
+            SELECT
+                satisfacao_cliente AS nota_satisfacao,
+                quantidade_pedidos AS total_pedidos,
+                faturamento_total,
+                tempo_medio_atendimento AS tempo_medio_min
             FROM gold.kpi_satisfacao
             ORDER BY nota_satisfacao
             """,
@@ -155,10 +259,20 @@ def buscar_consulta(pergunta: str) -> Consulta:
             "donut",
             "Pedidos por nota de satisfação",
         )
-
-    if any(termo in texto for termo in ("turno", "turnos", "horario", "hora", "pico")):
+    # TURNOS
+    if any(
+        termo in texto
+        for termo in (
+            "turno",
+            "turnos",
+            "hora",
+            "horario",
+            "horário",
+            "pico",
+        )
+    ):
         return Consulta(
-            "Pedidos e vendas por turno",
+            "Pedidos por turno",
             """
             WITH pedidos_por_turno AS (
                 SELECT
@@ -168,40 +282,37 @@ def buscar_consulta(pergunta: str) -> Consulta:
                         WHEN EXTRACT(HOUR FROM hora_pedido) < 18 THEN 'Tarde'
                         ELSE 'Noite'
                     END AS turno,
-                    hora_pedido,
                     valor_total
                 FROM silver.pedidos
             )
-            SELECT turno,
-                   COUNT(*) AS total_pedidos,
-                   SUM(valor_total) AS faturamento_total
+            SELECT
+                turno,
+                COUNT(*) AS total_pedidos,
+                SUM(valor_total) AS faturamento_total
             FROM pedidos_por_turno
             GROUP BY turno
-            ORDER BY CASE turno
-                WHEN 'Madrugada' THEN 1
-                WHEN 'Manhã' THEN 2
-                WHEN 'Tarde' THEN 3
-                ELSE 4
-            END
+            ORDER BY total_pedidos DESC
             """,
             "turno",
             "total_pedidos",
             "bar",
-            "Volume de pedidos em cada turno do dia",
+            "Pedidos por turno",
         )
-
+    # LOJAS
     if menciona_lojas:
         filtro_sql = "WHERE LOWER(l.regiao) LIKE ?" if filtro_regiao else ""
         parametros = (filtro_regiao,) if filtro_regiao else ()
         return Consulta(
             "Lojas com maior faturamento",
             f"""
-            SELECT l.loja_id AS loja,
-                   l.regiao,
-                   COUNT(*) AS total_pedidos,
-                   SUM(p.valor_total) AS faturamento_total
-            FROM silver.pedidos AS p
-            INNER JOIN silver.lojas AS l ON p.loja_id = l.loja_id
+            SELECT
+                l.loja_id AS loja,
+                l.regiao,
+                COUNT(*) AS total_pedidos,
+                SUM(p.valor_total) AS faturamento_total
+            FROM silver.pedidos p
+            INNER JOIN silver.lojas l
+                ON p.loja_id = l.loja_id
             {filtro_sql}
             GROUP BY l.loja_id, l.regiao
             ORDER BY faturamento_total DESC
@@ -210,14 +321,15 @@ def buscar_consulta(pergunta: str) -> Consulta:
             "loja",
             "faturamento_total",
             "bar",
-            "Dez lojas com maior faturamento",
+            "Lojas com maior faturamento",
             parametros,
         )
-
+    # REGIÕES
     if any(
         termo in texto
         for termo in (
             "regiao",
+            "região",
             "regional",
             "oeste",
             "west",
@@ -234,10 +346,11 @@ def buscar_consulta(pergunta: str) -> Consulta:
         return Consulta(
             "Vendas por região",
             f"""
-            SELECT regiao,
-                   total_pedidos,
-                   faturamento_total,
-                   ticket_medio
+            SELECT
+                regiao,
+                total_pedidos,
+                faturamento_total,
+                ticket_medio
             FROM gold.kpi_regiao
             {filtro_sql}
             ORDER BY faturamento_total DESC
@@ -245,73 +358,70 @@ def buscar_consulta(pergunta: str) -> Consulta:
             "regiao",
             "faturamento_total",
             "bar",
-            "Faturamento das lojas por região",
+            "Faturamento por região",
             parametros,
         )
-
+    # PRODUTOS
     if any(
         termo in texto
-        for termo in ("produto", "produtos", "bebida", "bebidas", "categoria")
+        for termo in (
+            "produto",
+            "produtos",
+            "bebida",
+            "bebidas",
+            "categoria",
+        )
     ):
         return Consulta(
-            "Desempenho dos produtos",
+            "Produtos",
             """
-            SELECT categoria_bebida AS produto,
-                   quantidade_pedidos AS total_pedidos,
-                   faturamento_total,
-                   ticket_medio
+            SELECT
+                categoria_bebida AS produto,
+                quantidade_pedidos AS total_pedidos,
+                faturamento_total,
+                ticket_medio
             FROM gold.kpi_categoria_bebida
             ORDER BY faturamento_total DESC
             """,
             "produto",
             "faturamento_total",
             "bar",
-            "Faturamento por categoria de produto",
+            "Faturamento por produto",
         )
-
-    if any(termo in texto for termo in ("cliente", "clientes", "fidelidade", "idade")):
-        return Consulta(
-            "Perfil e compras dos clientes",
-            """
-            SELECT c.faixa_etaria,
-                   COUNT(DISTINCT c.cliente_id) AS total_clientes,
-                   SUM(p.valor_total) AS faturamento_total
-            FROM silver.clientes AS c
-            INNER JOIN silver.pedidos AS p ON p.cliente_id = c.cliente_id
-            GROUP BY c.faixa_etaria
-            ORDER BY faturamento_total DESC
-            """,
-            "faixa_etaria",
-            "total_clientes",
-            "bar",
-            "Clientes por faixa etária",
-        )
-
+    # CANAIS
     if any(
-        termo in texto for termo in ("canal", "canais", "drive", "mobile", "presencial")
+        termo in texto
+        for termo in (
+            "canal",
+            "canais",
+            "mobile",
+            "drive",
+            "presencial",
+        )
     ):
         return Consulta(
-            "Vendas por canal",
+            "Canais",
             """
-            SELECT canal_pedido AS canal,
-                   total_pedidos,
-                   faturamento_total
+            SELECT
+                canal_pedido AS canal,
+                total_pedidos,
+                faturamento_total
             FROM gold.kpi_canal
             ORDER BY total_pedidos DESC
             """,
             "canal",
             "total_pedidos",
             "donut",
-            "Participação dos pedidos por canal",
+            "Participação dos canais",
         )
-
+    # PADRÃO
     return Consulta(
         "Vendas ao longo do tempo",
         """
-        SELECT DATE_TRUNC('month', data_pedido)::DATE AS mes,
-               COUNT(*) AS total_pedidos,
-               SUM(valor_total) AS faturamento_total,
-               AVG(valor_total) AS ticket_medio
+        SELECT
+            DATE_TRUNC('month', data_pedido)::DATE AS mes,
+            COUNT(*) AS total_pedidos,
+            SUM(valor_total) AS faturamento_total
         FROM silver.pedidos
         GROUP BY mes
         ORDER BY mes
@@ -509,6 +619,74 @@ if not resumo.empty:
         "Pedidos", f"{indicadores['total_pedidos']:,.0f}".replace(",", ".")
     )
     colunas[3].metric("Faturamento", formatar_moeda(indicadores["faturamento_total"]))
+# ==========================
+# INSIGHTS AUTOMÁTICOS
+# ==========================
+
+st.subheader("📊 Insights Automáticos")
+
+produtos_insight = carregar_dados(
+    """
+    SELECT categoria_bebida AS produto,
+           quantidade_pedidos,
+           faturamento_total
+    FROM gold.kpi_categoria_bebida
+    ORDER BY faturamento_total DESC
+    LIMIT 1
+    """
+)
+
+canais_insight = carregar_dados(
+    """
+    SELECT canal_pedido AS canal,
+           total_pedidos,
+           faturamento_total
+    FROM gold.kpi_canal
+    ORDER BY total_pedidos DESC
+    LIMIT 1
+    """
+)
+
+regioes_insight = carregar_dados(
+    """
+    SELECT regiao,
+           total_pedidos,
+           faturamento_total
+    FROM gold.kpi_regiao
+    ORDER BY faturamento_total DESC
+    LIMIT 1
+    """
+)
+
+if (
+    not produtos_insight.empty
+    and not canais_insight.empty
+    and not regioes_insight.empty
+):
+    produto_top = produtos_insight.iloc[0]
+    canal_top = canais_insight.iloc[0]
+    regiao_top = regioes_insight.iloc[0]
+
+    c1, c2, c3, c4 = st.columns(4)
+
+    with c1:
+        st.metric("🏆 Produto líder", produto_top["produto"])
+        st.caption(f"Faturamento: {formatar_moeda(produto_top['faturamento_total'])}")
+
+    with c2:
+        st.metric("📱 Canal líder", canal_top["canal"])
+        st.caption(f"{int(canal_top['total_pedidos']):,} pedidos".replace(",", "."))
+
+    with c3:
+        st.metric("🌎 Região destaque", regiao_top["regiao"])
+        st.caption(f"Faturamento: {formatar_moeda(regiao_top['faturamento_total'])}")
+
+    with c4:
+        st.metric(
+            "👥 Clientes ativos",
+            f"{int(indicadores['total_clientes']):,}".replace(",", "."),
+        )
+        st.caption("Base de clientes")
 
 tab_comercial, tab_regional, tab_experiencia, tab_fluxo = st.tabs(
     ["Comercial", "Regiões e lojas", "Clientes e operação", "Fluxo das entidades"]
