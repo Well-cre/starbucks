@@ -561,9 +561,12 @@ if not DATABASE_PATH.is_file():
 
 st.markdown(
     """
-    <div class="dashboard-header">
-        <h1>Inteligência de negócios</h1>
-        <p>Uma visão clara de clientes, lojas, produtos, pedidos e vendas.</p>
+    <div class="dashboard-header" style="display: flex; align-items: center; gap: 1.5rem;">
+        <img src="https://upload.wikimedia.org/wikipedia/en/d/d3/Starbucks_Corporation_Logo_2011.svg" width="75" alt="Starbucks Logo">
+        <div>
+            <h1>Inteligência de negócios</h1>
+            <p>Uma visão clara de clientes, lojas, produtos, pedidos e vendas.</p>
+        </div>
     </div>
     """,
     unsafe_allow_html=True,
