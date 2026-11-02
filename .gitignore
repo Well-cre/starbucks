@@ -2,3 +2,6 @@
 .vscode/
 __pycache__/
 *.pyc
+starbucks.duckdb
+starbucks.duckdb.wal
+site/
