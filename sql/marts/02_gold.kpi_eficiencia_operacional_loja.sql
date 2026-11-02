@@ -1,5 +1,5 @@
-##(Eficiência Operacional por Loja)
-Objetivo de Negócio: Avaliar o desempenho operacional das lojas com base em métricas de eficiência e tempo de atendimento.
+-- Eficiência Operacional por Loja
+-- Objetivo de negócio: avaliar o desempenho operacional e o tempo de atendimento das lojas.
 
 CREATE OR REPLACE TABLE gold.kpi_eficiencia_operacional_loja AS
 SELECT

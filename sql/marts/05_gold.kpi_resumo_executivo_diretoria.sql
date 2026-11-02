@@ -1,5 +1,5 @@
-##(Consolidado de Alto Nível)
-Objetivo de Negócio: Uma visão em linha única contendo os principais cartões (KPI Cards) para o topo do seu dashboard no Streamlit.
+-- Consolidado de Alto Nível
+-- Objetivo de negócio: reunir os principais indicadores para o dashboard executivo.
 
 CREATE OR REPLACE TABLE gold.kpi_resumo_executivo_diretoria AS
 SELECT

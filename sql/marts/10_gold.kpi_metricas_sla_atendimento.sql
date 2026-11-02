@@ -1,11 +1,11 @@
-##(Gargalos de Espera na Operação)
-Objetivo de Negócio: Classificar os pedidos por faixas de tempo de espera (ex.: Rápido, Normal, Lento) para monitorar a eficiência operacional da rede.
+-- Gargalos de Espera na Operação
+-- Objetivo de negócio: classificar os pedidos por tempo de atendimento.
 
 CREATE OR REPLACE TABLE gold.kpi_metricas_sla_atendimento AS
 SELECT
-    CASE 
+    CASE
         WHEN tempo_atendimento_min <= 3 THEN 'Atendimento Rápido (<= 3 min)'
-        WHEN tempo_atendimento_min BETWEEN 4 AND 8 THEN 'Atendimento Normal (4-8 min)'
+        WHEN tempo_atendimento_min <= 8 THEN 'Atendimento Normal (> 3-8 min)'
         ELSE 'Atendimento Lento (> 8 min)'
     END AS faixa_espera,
     COUNT(*) AS quantidade_pedidos,

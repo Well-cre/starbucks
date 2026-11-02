@@ -1,5 +1,5 @@
-##(Curva ABC de Produtos)
-Objetivo de Negócio: Classificar os produtos com base em sua contribuição para o faturamento e identificar os mais importantes.
+-- Curva ABC de Produtos
+-- Objetivo de negócio: classificar as categorias de produto por contribuição para o faturamento.
 
 CREATE OR REPLACE TABLE gold.kpi_curva_abc_produtos AS
 SELECT

@@ -1,5 +1,5 @@
-##(Ranking de Performance Por Região)
-Objetivo de Negócio: Cruzamento (JOIN) entre as tabelas de dimensões e fatos para comparar o faturamento médio por loja em cada região geográfica.
+-- Ranking de Performance por Região
+-- Objetivo de negócio: comparar o faturamento e o volume de pedidos por região.
 
 CREATE OR REPLACE TABLE gold.kpi_desempenho_regional_lojas AS
 SELECT

@@ -1,5 +1,5 @@
-(Mix de Produtos por Loja)
-Objetivo de Negócio: Analisar a aceitação e o volume de vendas das categorias de produtos em cada unidade/loja específica via JOIN.
+-- Mix de Produtos por Loja
+-- Objetivo de negócio: analisar a venda de cada categoria por loja e região.
 
 CREATE OR REPLACE TABLE gold.kpi_penetracao_categoria_loja AS
 SELECT

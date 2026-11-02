@@ -1,5 +1,5 @@
-##(Engajamento do Consumidor)
-Objetivo de Negócio: Entender o comportamento de compra agrupando os clientes por frequência e valor gasto.
+-- Engajamento do Consumidor
+-- Objetivo de negócio: agrupar clientes por frequência de compra e valor gasto.
 
 CREATE OR REPLACE TABLE gold.kpi_segmentacao_fidelidade_cliente AS
 SELECT

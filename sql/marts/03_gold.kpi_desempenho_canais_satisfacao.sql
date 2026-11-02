@@ -1,5 +1,5 @@
-##(Desempenho dos Canais e Satisfação do Cliente)
-Objetivo de Negócio: Analisar o desempenho dos diferentes canais de venda e sua relação com a satisfação do cliente.
+-- Desempenho dos Canais e Satisfação do Cliente
+-- Objetivo de negócio: relacionar o desempenho dos canais à satisfação dos clientes.
 
 CREATE OR REPLACE TABLE gold.kpi_desempenho_canais_satisfacao AS
 SELECT
