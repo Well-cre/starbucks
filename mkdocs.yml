@@ -1,6 +1,5 @@
 site_name: Pipeline de Dados Starbucks
-site_description: Documentação técnica da Medallion Architecture no DuckDB
-site_author: Seu Nome
+site_url: "https://well-cre.github.io/starbucks/"
 
 theme:
   name: material
@@ -38,12 +37,6 @@ markdown_extensions:
   - pymdownx.superfences
   - admonition
   - pymdownx.details
-
-nav:
-  - Home: index.md
-  - Camadas do Pipeline: camadas.md
-  - Testes e Boas Práticas: testes_boas_praticas.md
-  - Guia de Comandos: comandos.md
 
 nav:
   - Início: index.md
