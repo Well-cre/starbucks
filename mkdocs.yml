@@ -1,4 +1,4 @@
-site_name: Pipeline de Dados Starbucks
+site_name: Documentação de Dados Starbucks
 site_url: "https://well-cre.github.io/starbucks/"
 
 theme:
@@ -44,4 +44,5 @@ nav:
   - Marts: marts.md
   - Testes: testes.md
   - Checklist de Conformidade: checklist.md
+  - Dashboard: dashboard.md
   - Comandos: comandos.md
