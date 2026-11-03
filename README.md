@@ -142,6 +142,6 @@ uv run mkdocs serve
 👤 Autor & Portfólio
 Desenvolvido com foco em engenharia de dados, IA e arquitetura moderna por Wellington P. Marani
 
-LinkedIn (Portfólio Principal):https://www.linkedin.com/in/wellington-marani-634aab24/
+💼 LinkedIn (Portfólio Principal):https://www.linkedin.com/in/wellington-marani-634aab24/
 
-GitHub: https://github.com/Well-cre
+🐙 GitHub: https://github.com/Well-cre
