@@ -1,0 +1,8 @@
+/* Aumenta de forma visível o logótipo na barra de topo do MkDocs Material */
+.md-header__logo img,
+.md-logo img {
+  height: 3.5rem !important;
+  /* Podes subir para 4rem se ainda achares pequeno */
+  width: auto !important;
+  max-height: none !important;
+}
