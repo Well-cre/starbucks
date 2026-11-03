@@ -30,3 +30,35 @@ Suíte de Testes: Pytest
 Interface Gráfica: Streamlit
 
 Documentação: MkDocs com tema Material
+
+##📂 Estrutura do Projeto
+
+Abaixo está a organização de diretórios e arquivos do repositório starbucks:
+
+starbucks/
+├── .streamlit/              # Configurações do painel Streamlit
+├── data/                    # Dados locais e arquivos CSV de origem
+│   └── starbucks_customer_ordering_patterns.csv
+├── docs/                    # Documentação do projeto gerada com MkDocs
+│   ├── camadas.md           # Documentação das camadas de dados
+│   ├── checklist.md         # Checklist de validação e entregas
+│   ├── comandos.md          # Guia de comandos úteis (uv, pytest, ruff)
+│   ├── dashboard.md         # Documentação da interface e métricas do Streamlit
+│   ├── index.md             # Página inicial e visão geral do projeto
+│   ├── marts.md             # Documentação dos Data Marts e KPIs de negócios
+│   └── testes.md            # Guia e estratégias de testes automatizados
+├── pipeline/                # Scripts Python do fluxo de dados e ETL
+│   ├── db.py                # Conexão e gerenciamento do banco DuckDB
+│   ├── ingestao.py          # Ingestão de dados brutos
+│   ├── marts.py             # Construção e carga dos Data Marts
+│   └── transformacao.py     # Transformações e modelagem nas camadas
+├── site/                    # Arquivos estáticos compilados da documentação
+├── sql/
+│   └── marts/               # Consultas SQL para os KPIs da camada Gold (1 a 10)
+│       └── ...
+├── tests/                   # Suite de testes automatizados (pytest)
+├── mkdocs.yml               # Configuração e navegação do MkDocs
+├── pyproject.toml           # Configurações do projeto, uv e ruff
+├── README.md                # Visão geral e introdução rápida ao repositório
+├── starbucks.duckdb         # Banco de dados analítico local (DuckDB)
+└── ui.py                    # Aplicação principal do dashboard Streamlit
