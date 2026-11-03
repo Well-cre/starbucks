@@ -32,3 +32,29 @@ Garantimos a qualidade e a integridade do pipeline através de testes automatiza
 * **Idempotência**: Todos os scripts podem reexecutar sem duplicar dados (`CREATE OR REPLACE TABLE`).
 * **Tipagem Estrita**: Nomes padronizados em português snake_case e tipos explícitos no DuckDB.
 * **Isolamento de Conexão**: Conexões de testes em modo de leitura para evitar bloqueios de arquivo no DuckDB.
+
+---
+
+## 🛠️ Qualidade de Código e Padrões
+
+O projeto **Starbucks Data Pipeline** segue as normas globais de desenvolvimento em Python para garantir legibilidade, manutenção e confiabilidade, com apoio de testes e ferramentas automatizadas.
+
+### Padrão de Estilo (PEP 8)
+
+O código segue o guia de estilo oficial **PEP 8**. O projeto utiliza o gerenciador de pacotes **`uv`** e o **Ruff** como formatador e linter. O Ruff aplica, entre outras, as regras `E`, que verificam erros de estilo da PEP 8, além das regras do Pyflakes (`F`) e do isort (`I`).
+
+As regras de lint e o limite de linha (`line-length = 150`) estão centralizados no arquivo `pyproject.toml`.
+
+### Verificação de Lint
+
+Para verificar se o código está livre de violações das regras configuradas, execute:
+
+```bash
+uv run ruff check .
+```
+
+Para formatar o código:
+
+```bash
+uv run ruff format .
+```
