@@ -10,6 +10,7 @@ O pipeline transforma dados brutos de transações em conjuntos de dados analít
 
 ```text
 [ CSV Bruto ] ──► [ Bronze (Raw) ] ──► [ Silver (Refined) ] ──► [ Gold (Marts) ] ──► [ Dashboard Streamlit ]
+```
 
 Principais Componentes:
 Bronze (bronze.pedidos_starbucks): Ingestão integral dos dados sem perda de granularidade.
@@ -35,6 +36,7 @@ Documentação: MkDocs com tema Material
 
 Abaixo está a organização de diretórios e arquivos do repositório starbucks:
 
+```text
 starbucks/
 ├── .streamlit/              # Configurações do painel Streamlit
 ├── data/                    # Dados locais e arquivos CSV de origem
@@ -62,3 +64,4 @@ starbucks/
 ├── README.md                # Visão geral e introdução rápida ao repositório
 ├── starbucks.duckdb         # Banco de dados analítico local (DuckDB)
 └── ui.py                    # Aplicação principal do dashboard Streamlit
+```
