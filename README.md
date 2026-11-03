@@ -2,7 +2,17 @@
 <p align="center">
   <img src="https://upload.wikimedia.org/wikipedia/en/d/d3/Starbucks_Corporation_Logo_2011.svg" alt="Starbucks Logo" width="120" height="120">
 </p>
-# Starbucks — Engenharia de Dados e Business Analytics
+
+<h1 align="center">☕ Starbucks — Engenharia de Dados e Business Analytics</h1>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.12-006241?style=flat-square&logo=python&logoColor=white" alt="Python 3.12">
+  <img src="https://img.shields.io/badge/Gerenciamento-uv-006241?style=flat-square" alt="uv">
+  <img src="https://img.shields.io/badge/Banco%20de%20Dados-DuckDB-006241?style=flat-square&logo=duckdb&logoColor=white" alt="DuckDB">
+  <img src="https://img.shields.io/badge/Testes-pytest-006241?style=flat-square&logo=pytest&logoColor=white" alt="pytest">
+  <img src="https://img.shields.io/badge/Qualidade-Ruff-006241?style=flat-square" alt="Ruff">
+  <img src="https://img.shields.io/badge/Arquitetura-Medallion-006241?style=flat-square" alt="Medallion">
+</p>
 
 Pipeline de dados ponta a ponta desenvolvido como projeto final da pós-graduação em Engenharia de Dados e IA. O projeto usa Python, DuckDB e a arquitetura Medallion para transformar dados brutos em indicadores de negócio e disponibilizá-los em um dashboard.
 
