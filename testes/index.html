@@ -559,6 +559,45 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#qualidade-de-codigo-e-padroes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🛠️ Qualidade de Código e Padrões
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛠️ Qualidade de Código e Padrões">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#padrao-de-estilo-pep-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Padrão de Estilo (PEP 8)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificacao-de-lint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verificação de Lint
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -713,6 +752,45 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#qualidade-de-codigo-e-padroes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🛠️ Qualidade de Código e Padrões
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛠️ Qualidade de Código e Padrões">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#padrao-de-estilo-pep-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Padrão de Estilo (PEP 8)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificacao-de-lint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verificação de Lint
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -769,6 +847,19 @@
 <li><strong>Tipagem Estrita</strong>: Nomes padronizados em português snake_case e tipos explícitos no DuckDB.</li>
 <li><strong>Isolamento de Conexão</strong>: Conexões de testes em modo de leitura para evitar bloqueios de arquivo no DuckDB.</li>
 </ul>
+<hr />
+<h2 id="qualidade-de-codigo-e-padroes">🛠️ Qualidade de Código e Padrões</h2>
+<p>O projeto <strong>Starbucks Data Pipeline</strong> segue as normas globais de desenvolvimento em Python para garantir legibilidade, manutenção e confiabilidade, com apoio de testes e ferramentas automatizadas.</p>
+<h3 id="padrao-de-estilo-pep-8">Padrão de Estilo (PEP 8)</h3>
+<p>O código segue o guia de estilo oficial <strong>PEP 8</strong>. O projeto utiliza o gerenciador de pacotes <strong><code>uv</code></strong> e o <strong>Ruff</strong> como formatador e linter. O Ruff aplica, entre outras, as regras <code>E</code>, que verificam erros de estilo da PEP 8, além das regras do Pyflakes (<code>F</code>) e do isort (<code>I</code>).</p>
+<p>As regras de lint e o limite de linha (<code>line-length = 150</code>) estão centralizados no arquivo <code>pyproject.toml</code>.</p>
+<h3 id="verificacao-de-lint">Verificação de Lint</h3>
+<p>Para verificar se o código está livre de violações das regras configuradas, execute:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>.
+</code></pre></div>
+<p>Para formatar o código:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>format<span class="w"> </span>.
+</code></pre></div>
 
 
 
