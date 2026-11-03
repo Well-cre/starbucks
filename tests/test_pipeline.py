@@ -45,11 +45,11 @@ from pathlib import Path
 
 import pytest
 
+from pipeline import db
+
 raiz_projeto = str(Path(__file__).resolve().parents[1])
 if raiz_projeto not in sys.path:
     sys.path.insert(0, raiz_projeto)
-
-from pipeline import db
 
 
 @pytest.fixture(scope="module")
@@ -78,9 +78,7 @@ def _tabela_existe(conexao, schema, tabela):
 
 def test_camada_bronze(conexao):
     assert _tabela_existe(conexao, "bronze", "pedidos_starbucks")
-    total = conexao.execute("SELECT COUNT(*) FROM bronze.pedidos_starbucks").fetchone()[
-        0
-    ]
+    total = conexao.execute("SELECT COUNT(*) FROM bronze.pedidos_starbucks").fetchone()[0]
     assert total == 100_000
 
 
@@ -147,12 +145,12 @@ def test_camada_gold_marts(conexao):
     for mart in marts:
         assert _tabela_existe(conexao, "gold", mart)
 
-    faturamento_mart = conexao.execute(
-        "SELECT faturamento_total FROM gold.kpi_vendas"
-    ).fetchone()[0]
-    faturamento_pedidos = conexao.execute(
-        "SELECT SUM(valor_total) FROM silver.pedidos"
-    ).fetchone()[0]
+    faturamento_mart = conexao.execute("SELECT faturamento_total FROM gold.kpi_vendas").fetchone()[
+        0
+    ]
+    faturamento_pedidos = conexao.execute("SELECT SUM(valor_total) FROM silver.pedidos").fetchone()[
+        0
+    ]
     assert faturamento_mart == faturamento_pedidos == Decimal("1486677.08")
 
     for consulta, total_esperado in marts.values():

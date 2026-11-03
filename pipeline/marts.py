@@ -44,6 +44,7 @@ Executável pela linha de comando via:
 
 import sys
 from decimal import Decimal
+from pathlib import Path
 
 from pipeline import db
 
@@ -189,7 +190,6 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 
-from pathlib import Path
 
 SCHEMA_DESTINO = "gold"
 PASTA_SQL = Path("sql/marts")

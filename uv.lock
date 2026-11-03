@@ -1197,18 +1197,18 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "duckdb", specifier = ">=2.0.0" },
-    { name = "pandas", specifier = ">=3.1.0" },
-    { name = "plotly", specifier = ">=7.1.0" },
-    { name = "streamlit", specifier = ">=1.66.1" },
+    { name = "duckdb", specifier = ">=1.0.0" },
+    { name = "pandas", specifier = ">=2.0.0" },
+    { name = "plotly", specifier = ">=5.0.0" },
+    { name = "streamlit", specifier = ">=1.30.0" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "mkdocs", specifier = ">=1.6.1" },
     { name = "mkdocs-material", specifier = ">=9.8.0" },
-    { name = "pytest", specifier = ">=9.2.0" },
-    { name = "ruff", specifier = ">=0.17.3" },
+    { name = "pytest", specifier = ">=8.0.0" },
+    { name = "ruff", specifier = ">=0.3.0" },
 ]
 
 [[package]]
