@@ -1,8 +1,13 @@
 site_name: Documentação de Dados Starbucks
 site_url: "https://well-cre.github.io/starbucks/"
 
+extra_css:
+  - stylesheets/extra.css
+
 theme:
   name: material
+  logo: assets/images/starbucks-logo.png  # Caminho para o teu logótipo
+  # favicon: assets/images/favicon.ico   # Opcional: ícone do separador do browser
   language: pt
   palette:
     # Alternador de tema claro/escuro
