@@ -1,37 +1,47 @@
 <!-- Logo centralizado do projeto -->
 <p align="center">
-  <img src="https://upload.wikimedia.org/wikipedia/en/d/d3/Starbucks_Corporation_Logo_2011.svg" alt="Starbucks Logo" width="120" height="120">
+  <img src="https://upload.wikimedia.org/wikipedia/en/d/d3/Starbucks_Corporation_Logo_2011.svg" alt="Starbucks Logo" width="110" height="110">
 </p>
 
-<h1 align="center">☕ Starbucks — Engenharia de Dados e Business Analytics</h1>
+<h1 align="center">☕ Starbucks — Data Pipeline & Business Analytics</h1>
+
+<p align="center">
+  <em>Engenharia de Dados Moderna · Arquitetura Medallion · DuckDB · Streamlit</em>
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.12-006241?style=flat-square&logo=python&logoColor=white" alt="Python 3.12">
   <img src="https://img.shields.io/badge/Gerenciamento-uv-006241?style=flat-square" alt="uv">
   <img src="https://img.shields.io/badge/Banco%20de%20Dados-DuckDB-006241?style=flat-square&logo=duckdb&logoColor=white" alt="DuckDB">
-  <img src="https://img.shields.io/badge/Testes-pytest-006241?style=flat-square&logo=pytest&logoColor=white" alt="pytest">
+  <img src="https://img.shields.io/badge/Testes-9%2F9%20Passed-006241?style=flat-square&logo=pytest&logoColor=white" alt="pytest">
   <img src="https://img.shields.io/badge/Qualidade-Ruff-006241?style=flat-square" alt="Ruff">
-  <img src="https://img.shields.io/badge/Arquitetura-Medallion-006241?style=flat-square" alt="Medallion">
+  <img src="https://img.shields.io/badge/Interface-Streamlit-006241?style=flat-square&logo=streamlit&logoColor=white" alt="Streamlit">
 </p>
 
-Pipeline de dados ponta a ponta desenvolvido como projeto final da pós-graduação em Engenharia de Dados e IA. O projeto usa Python, DuckDB e a arquitetura Medallion para transformar dados brutos em indicadores de negócio e disponibilizá-los em um dashboard.
+---
 
-## Arquitetura
+> **Visão Geral:** Pipeline de dados ponta a ponta desenvolvido como projeto final da pós-graduação em Engenharia de Dados e IA. O sistema ingere, transforma e modela dados brutos do Starbucks utilizando uma arquitetura Medallion robusta, garantindo alta confiabilidade através de testes automatizados e entregando indicadores analíticos de alto valor.
+
+---
+
+## 🏛️ Arquitetura do Pipeline
+
+O fluxo de dados segue o padrão de maturidade analítica em camadas:
 
 ```text
-CSV bruto
-   |
-   v
-Bronze (bronze.pedidos_starbucks)
-   |
-   v
-Silver (silver.pedidos, silver.clientes, silver.lojas)
-   |
-   v
-Gold (marts de negócio)
-   |
-   v
-Dashboard Streamlit
+CSV Bruto
+   │
+   ▼
+[ Bronze ] ──> Preservação integral dos dados de origem
+   │
+   ▼
+[ Silver ] ──> Limpeza, tipagem, normalização e relações
+   │
+   ▼
+[  Gold  ] ──> Marts de negócio e agregação de indicadores
+   │
+   ▼
+📊 Dashboard Streamlit
 ```
 
 | Camada | Responsabilidade |
@@ -40,7 +50,7 @@ Dashboard Streamlit
 | **Silver** | Limpa e tipa os dados, remove duplicidades, organiza as entidades relacionais e traduz nomes e categorias para português. |
 | **Gold** | Gera tabelas agregadas e indicadores para análise de vendas, produtos, regiões, canais e satisfação. |
 
-## Indicadores disponíveis
+## 📊 Indicadores Disponíveis (Marts Gold)
 
 Os marts da camada Gold incluem:
 
@@ -50,7 +60,7 @@ Os marts da camada Gold incluem:
 - `gold.kpi_canal`: indicadores por canal do pedido.
 - `gold.kpi_satisfacao`: indicadores por satisfação e tempo de atendimento.
 
-## Tecnologias
+## 🛠️ Stack Tecnológica
 
 - **Python 3.12+** e [`uv`](https://docs.astral.sh/uv/)
 - **DuckDB** para armazenamento e consultas analíticas
@@ -60,7 +70,7 @@ Os marts da camada Gold incluem:
 - **Streamlit** para o dashboard
 - **MkDocs Material** para a documentação
 
-## Como executar
+## 🚀 Como Executar o Projeto
 
 ### Instalar as dependências
 
@@ -124,7 +134,7 @@ tests/test_pipeline.py::test_camada_gold_marts PASSED
 
 Os cinco testes de marts validam os indicadores de vendas, categorias, regiões (incluindo o `JOIN`), canais e satisfação em uma conexão DuckDB em memória. Os outros quatro verificam a quantidade de registros da camada Bronze, as tabelas e chaves da Silver, a integridade referencial e os marts da Gold, incluindo o faturamento total.
 
-### Visualizar a documentação
+### 📖 Documentação Local
 
 ```bash
 uv run mkdocs serve
