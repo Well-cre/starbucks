@@ -1,3 +1,7 @@
+<!-- Logo centralizado do projeto -->
+<p align="center">
+  <img src="https://upload.wikimedia.org/wikipedia/en/d/d3/Starbucks_Corporation_Logo_2011.svg" alt="Starbucks Logo" width="120" height="120">
+</p>
 # Starbucks — Engenharia de Dados e Business Analytics
 
 Pipeline de dados ponta a ponta desenvolvido como projeto final da pós-graduação em Engenharia de Dados e IA. O projeto usa Python, DuckDB e a arquitetura Medallion para transformar dados brutos em indicadores de negócio e disponibilizá-los em um dashboard.
@@ -115,3 +119,9 @@ Os cinco testes de marts validam os indicadores de vendas, categorias, regiões 
 ```bash
 uv run mkdocs serve
 ```
+👤 Autor & Portfólio
+Desenvolvido com foco em engenharia de dados, IA e arquitetura moderna por Wellington P. Marani
+
+LinkedIn (Portfólio Principal):https://www.linkedin.com/in/wellington-marani-634aab24/
+
+GitHub: https://github.com/Well-cre
