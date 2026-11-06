@@ -1,14 +1,10 @@
 
 <h1 align="center">☕ Starbucks — Data Pipeline & Business Analytics</h1>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Testes-14%2F14%20Passed-006241?style=flat-square&logo=pytest&logoColor=white" alt="pytest">
-</p>
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.12-006241?style=flat-square&logo=python&logoColor=white" alt="Python 3.12">
   <img src="https://img.shields.io/badge/Gerenciamento-uv-006241?style=flat-square" alt="uv">
   <img src="https://img.shields.io/badge/Banco%20de%20Dados-DuckDB-006241?style=flat-square&logo=duckdb&logoColor=white" alt="DuckDB">
-  <img src="https://img.shields.io/badge/Testes-9%2F9%20Passed-006241?style=flat-square&logo=pytest&logoColor=white" alt="pytest">
+  <img src="https://img.shields.io/badge/Testes-14%2F14%20Passed-006241?style=flat-square&logo=pytest&logoColor=white" alt="pytest">
   <img src="https://img.shields.io/badge/Qualidade-Ruff-006241?style=flat-square" alt="Ruff">
   <img src="https://img.shields.io/badge/Interface-Streamlit-006241?style=flat-square&logo=streamlit&logoColor=white" alt="Streamlit">
 </p>
@@ -21,15 +17,6 @@
 
 ## 📋 Sobre o Projeto
 Este projeto implementa um fluxo analítico completo (ELT) baseado no *Starbucks Store & Menu Dataset*, transformando dados brutos em marts de negócios estruturados para suporte à decisão e visualização em painel interativo.
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.12-006241?style=flat-square&logo=python&logoColor=white" alt="Python 3.12">
-  <img src="https://img.shields.io/badge/Gerenciamento-uv-006241?style=flat-square" alt="uv">
-  <img src="https://img.shields.io/badge/Banco%20de%20Dados-DuckDB-006241?style=flat-square&logo=duckdb&logoColor=white" alt="DuckDB">
-  <img src="https://img.shields.io/badge/Testes-9%2F9%20Passed-006241?style=flat-square&logo=pytest&logoColor=white" alt="pytest">
-  <img src="https://img.shields.io/badge/Qualidade-Ruff-006241?style=flat-square" alt="Ruff">
-  <img src="https://img.shields.io/badge/Interface-Streamlit-006241?style=flat-square&logo=streamlit&logoColor=white" alt="Streamlit">
-</p>
 
 ---
 
