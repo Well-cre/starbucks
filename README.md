@@ -147,11 +147,13 @@ uv run ruff check .
 # Formatar o código com Ruff
 uv run ruff format .
 
-### Resultado dos testes
+### Resultado dos Testes
 
-Os testes foram executados com `uv run pytest -v`. Na última execução, os 9 testes passaram em 0,44 segundo:
+A suíte foi expandida para **14 testes automatizados**, cobrindo validações estritas de dados, integridade referencial e consistência de negócios:
 
 ```text
+tests/test_gold_marts.py::test_gold_kpi_vendas_consistencia PASSED
+tests/test_gold_marts.py::test_gold_kpi_categoria_bebida_nao_vazio PASSED
 tests/test_marts.py::test_kpi_vendas PASSED
 tests/test_marts.py::test_kpi_categoria_bebida PASSED
 tests/test_marts.py::test_kpi_regiao_com_join PASSED
@@ -161,8 +163,11 @@ tests/test_pipeline.py::test_camada_bronze PASSED
 tests/test_pipeline.py::test_camada_silver_contagens_e_nulos PASSED
 tests/test_pipeline.py::test_camada_silver_integridade_referencial PASSED
 tests/test_pipeline.py::test_camada_gold_marts PASSED
+tests/test_silver_validations.py::test_silver_pedidos_sem_valores_nulos_criticos PASSED
+tests/test_silver_validations.py::test_silver_valores_totais_positivos PASSED
+tests/test_utils.py::test_formatar_moeda PASSED
 
-============================== 9 passed in 0.44s ==============================
+============================== 14 passed in ~2.14s ==============================
 ```
 
 Os cinco testes de marts validam os indicadores de vendas, categorias, regiões (incluindo o `JOIN`), canais e satisfação em uma conexão DuckDB em memória. Os outros quatro verificam a quantidade de registros da camada Bronze, as tabelas e chaves da Silver, a integridade referencial e os marts da Gold, incluindo o faturamento total.
