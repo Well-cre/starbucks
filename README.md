@@ -1,3 +1,9 @@
+<h1 align="center">☕ Starbucks — Data Pipeline & Business Analytics</h1>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Testes-14%2F14%20Passed-006241?style=flat-square&logo=pytest&logoColor=white" alt="pytest">
+</p>
+
 # ☕ Starbucks Data Pipeline & Analytics
 
 > Um pipeline de dados de ponta a ponta construído com arquitetura Medallion utilizando Python, DuckDB e Streamlit, processando dados do ecossistema Starbucks.
@@ -6,12 +12,6 @@
 
 ## 📋 Sobre o Projeto
 Este projeto implementa um fluxo analítico completo (ELT) baseado no *Starbucks Store & Menu Dataset*, transformando dados brutos em marts de negócios estruturados para suporte à decisão e visualização em painel interativo.
-
-<h1 align="center">☕ Starbucks — Data Pipeline & Business Analytics</h1>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Testes-14%2F14%20Passed-006241?style=flat-square&logo=pytest&logoColor=white" alt="pytest">
-</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.12-006241?style=flat-square&logo=python&logoColor=white" alt="Python 3.12">
