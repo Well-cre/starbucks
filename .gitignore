@@ -5,3 +5,5 @@ __pycache__/
 starbucks.duckdb
 starbucks.duckdb.wal
 site/
+data/
+*.duckdb
