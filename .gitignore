@@ -7,3 +7,7 @@ starbucks.duckdb.wal
 site/
 data/
 *.duckdb
+# Cobertura de testes
+.coverage
+htmlcov/
+.pytest_cache/
