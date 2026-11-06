@@ -120,9 +120,7 @@ class Consulta:
 
 def normalizar(texto: str) -> str:
     texto = unicodedata.normalize("NFKD", texto.casefold())
-    return "".join(
-        caractere for caractere in texto if not unicodedata.combining(caractere)
-    )
+    return "".join(caractere for caractere in texto if not unicodedata.combining(caractere))
 
 
 def regiao_solicitada(pergunta: str) -> str | None:
@@ -138,17 +136,13 @@ def regiao_solicitada(pergunta: str) -> str | None:
     return None
 
 
-def buscar_consulta(pergunta: str) -> Consulta:
-    texto = normalizar(pergunta)
-    filtro_regiao = regiao_solicitada(texto)
-    menciona_lojas = any(
-        termo in texto for termo in ("loja", "lojas", "melhor loja", "melhores lojas")
-    )
-    # PRODUTO + REGIÃO
-    if (
-        any(t in texto for t in ("produto", "produtos", "bebida", "bebidas"))
-        and filtro_regiao
-    ):
+# ==========================================
+# FAIXAS DE CONSULTA MODULARIZADAS (CLEAN CODE)
+# ==========================================
+
+
+def _consultar_produto_regiao(texto: str, filtro_regiao: str | None) -> Consulta | None:
+    if any(t in texto for t in ("produto", "produtos", "bebida", "bebidas")) and filtro_regiao:
         return Consulta(
             "Produtos por região",
             """
@@ -169,20 +163,11 @@ def buscar_consulta(pergunta: str) -> Consulta:
             "Produtos mais vendidos na região",
             (filtro_regiao,),
         )
-    # CANAL + REGIÃO
-    if (
-        any(
-            t in texto
-            for t in (
-                "canal",
-                "canais",
-                "mobile",
-                "drive",
-                "presencial",
-            )
-        )
-        and filtro_regiao
-    ):
+    return None
+
+
+def _consultar_canal_regiao(texto: str, filtro_regiao: str | None) -> Consulta | None:
+    if any(t in texto for t in ("canal", "canais", "mobile", "drive", "presencial")) and filtro_regiao:
         return Consulta(
             "Canais por região",
             """
@@ -203,17 +188,11 @@ def buscar_consulta(pergunta: str) -> Consulta:
             "Desempenho dos canais por região",
             (filtro_regiao,),
         )
-    # FAIXA ETÁRIA
-    if any(
-        termo in texto
-        for termo in (
-            "idade",
-            "faixa etaria",
-            "faixa etária",
-            "cliente",
-            "clientes",
-        )
-    ):
+    return None
+
+
+def _consultar_clientes(texto: str) -> Consulta | None:
+    if any(termo in texto for termo in ("idade", "faixa etaria", "faixa etária", "cliente", "clientes")):
         return Consulta(
             "Perfil dos clientes",
             """
@@ -232,17 +211,11 @@ def buscar_consulta(pergunta: str) -> Consulta:
             "bar",
             "Faturamento por faixa etária",
         )
-    # SATISFAÇÃO
-    if any(
-        termo in texto
-        for termo in (
-            "satisfacao",
-            "satisfação",
-            "avaliacao",
-            "avaliação",
-            "nota",
-        )
-    ):
+    return None
+
+
+def _consultar_satisfacao(texto: str) -> Consulta | None:
+    if any(termo in texto for termo in ("satisfacao", "satisfação", "avaliacao", "avaliação", "nota")):
         return Consulta(
             "Satisfação dos clientes",
             """
@@ -259,18 +232,11 @@ def buscar_consulta(pergunta: str) -> Consulta:
             "donut",
             "Pedidos por nota de satisfação",
         )
-    # TURNOS
-    if any(
-        termo in texto
-        for termo in (
-            "turno",
-            "turnos",
-            "hora",
-            "horario",
-            "horário",
-            "pico",
-        )
-    ):
+    return None
+
+
+def _consultar_turnos(texto: str) -> Consulta | None:
+    if any(termo in texto for termo in ("turno", "turnos", "hora", "horario", "horário", "pico")):
         return Consulta(
             "Pedidos por turno",
             """
@@ -298,7 +264,10 @@ def buscar_consulta(pergunta: str) -> Consulta:
             "bar",
             "Pedidos por turno",
         )
-    # LOJAS
+    return None
+
+
+def _consultar_lojas(texto: str, menciona_lojas: bool, filtro_regiao: str | None) -> Consulta | None:
     if menciona_lojas:
         filtro_sql = "WHERE LOWER(l.regiao) LIKE ?" if filtro_regiao else ""
         parametros = (filtro_regiao,) if filtro_regiao else ()
@@ -324,23 +293,11 @@ def buscar_consulta(pergunta: str) -> Consulta:
             "Lojas com maior faturamento",
             parametros,
         )
-    # REGIÕES
-    if any(
-        termo in texto
-        for termo in (
-            "regiao",
-            "região",
-            "regional",
-            "oeste",
-            "west",
-            "norte",
-            "north",
-            "sul",
-            "south",
-            "leste",
-            "east",
-        )
-    ):
+    return None
+
+
+def _consultar_regioes(texto: str, filtro_regiao: str | None) -> Consulta | None:
+    if any(termo in texto for termo in ("regiao", "região", "regional", "oeste", "west", "norte", "north", "sul", "south", "leste", "east")):
         filtro_sql = "WHERE LOWER(regiao) LIKE ?" if filtro_regiao else ""
         parametros = (filtro_regiao,) if filtro_regiao else ()
         return Consulta(
@@ -361,17 +318,11 @@ def buscar_consulta(pergunta: str) -> Consulta:
             "Faturamento por região",
             parametros,
         )
-    # PRODUTOS
-    if any(
-        termo in texto
-        for termo in (
-            "produto",
-            "produtos",
-            "bebida",
-            "bebidas",
-            "categoria",
-        )
-    ):
+    return None
+
+
+def _consultar_produtos_geral(texto: str) -> Consulta | None:
+    if any(termo in texto for termo in ("produto", "produtos", "bebida", "bebidas", "categoria")):
         return Consulta(
             "Produtos",
             """
@@ -388,17 +339,11 @@ def buscar_consulta(pergunta: str) -> Consulta:
             "bar",
             "Faturamento por produto",
         )
-    # CANAIS
-    if any(
-        termo in texto
-        for termo in (
-            "canal",
-            "canais",
-            "mobile",
-            "drive",
-            "presencial",
-        )
-    ):
+    return None
+
+
+def _consultar_canais_geral(texto: str) -> Consulta | None:
+    if any(termo in texto for termo in ("canal", "canais", "mobile", "drive", "presencial")):
         return Consulta(
             "Canais",
             """
@@ -414,7 +359,32 @@ def buscar_consulta(pergunta: str) -> Consulta:
             "donut",
             "Participação dos canais",
         )
-    # PADRÃO
+    return None
+
+
+def buscar_consulta(pergunta: str) -> Consulta:
+    """Função principal orquestradora: delega a busca para funções de domínio específicas."""
+    texto = normalizar(pergunta)
+    filtro_regiao = regiao_solicitada(texto)
+    menciona_lojas = any(termo in texto for termo in ("loja", "lojas", "melhor loja", "melhores lojas"))
+
+    # Orquestração limpa das regras de negócio
+    for funcao_consulta in [
+        lambda: _consultar_produto_regiao(texto, filtro_regiao),
+        lambda: _consultar_canal_regiao(texto, filtro_regiao),
+        lambda: _consultar_clientes(texto),
+        lambda: _consultar_satisfacao(texto),
+        lambda: _consultar_turnos(texto),
+        lambda: _consultar_lojas(texto, menciona_lojas, filtro_regiao),
+        lambda: _consultar_regioes(texto, filtro_regiao),
+        lambda: _consultar_produtos_geral(texto),
+        lambda: _consultar_canais_geral(texto),
+    ]:
+        resultado = funcao_consulta()
+        if resultado is not None:
+            return resultado
+
+    # Padrão (Fallback) caso nenhuma condição seja satisfeita
     return Consulta(
         "Vendas ao longo do tempo",
         """
@@ -441,16 +411,8 @@ def renderizar_grafico(df: pd.DataFrame, consulta: Consulta, chave: str) -> None
     if df.empty:
         return
 
-    x = (
-        consulta.x
-        if consulta.x in df.columns
-        else df.select_dtypes(include=["object", "string", "datetime"]).columns[0]
-    )
-    y = (
-        consulta.y
-        if consulta.y in df.columns
-        else df.select_dtypes(include=["number"]).columns[0]
-    )
+    x = consulta.x if consulta.x in df.columns else df.select_dtypes(include=["object", "string", "datetime"]).columns[0]
+    y = consulta.y if consulta.y in df.columns else df.select_dtypes(include=["number"]).columns[0]
     moeda = any(termo in y for termo in ("faturamento", "ticket"))
 
     if consulta.tipo_grafico == "donut":
@@ -501,13 +463,7 @@ def renderizar_grafico(df: pd.DataFrame, consulta: Consulta, chave: str) -> None
             color_continuous_scale=["#D5E7DE", GREEN],
             labels={
                 x: x.replace("_", " ").title(),
-                y: (
-                    "Faturamento (R$)"
-                    if "faturamento" in y
-                    else "Ticket médio (R$)"
-                    if "ticket" in y
-                    else y.replace("_", " ").title()
-                ),
+                y: ("Faturamento (R$)" if "faturamento" in y else "Ticket médio (R$)" if "ticket" in y else y.replace("_", " ").title()),
             },
         )
         fig.update_traces(
@@ -516,11 +472,7 @@ def renderizar_grafico(df: pd.DataFrame, consulta: Consulta, chave: str) -> None
             textposition="outside",
             textfont={"size": 11, "color": TEXT},
             cliponaxis=False,
-            hovertemplate=(
-                "%{x}<br>Faturamento: R$ %{y:,.2f}<extra></extra>"
-                if moeda
-                else "%{x}<br>Quantidade: %{y:,.0f}<extra></extra>"
-            ),
+            hovertemplate=("%{x}<br>Faturamento: R$ %{y:,.2f}<extra></extra>" if moeda else "%{x}<br>Quantidade: %{y:,.0f}<extra></extra>"),
         )
         fig.update_xaxes(tickangle=-20, automargin=True)
         fig.update_yaxes(
@@ -554,9 +506,7 @@ def renderizar_grafico(df: pd.DataFrame, consulta: Consulta, chave: str) -> None
 
 
 if not DATABASE_PATH.is_file():
-    st.error(
-        "Banco de dados não encontrado. Execute a ingestão antes de abrir o painel."
-    )
+    st.error("Banco de dados não encontrado. Execute a ingestão antes de abrir o painel.")
     st.stop()
 
 st.markdown(
@@ -573,10 +523,7 @@ st.markdown(
 )
 
 st.subheader("Explore os dados")
-st.caption(
-    "Faça uma pergunta sobre vendas, melhores lojas, região oeste, satisfação, "
-    "produtos ou turnos."
-)
+st.caption("Faça uma pergunta sobre vendas, melhores lojas, região oeste, satisfação, produtos ou turnos.")
 pergunta = st.text_input(
     "Pergunta",
     placeholder="Ex.: Quais foram as melhores lojas da região oeste?",
@@ -614,14 +561,11 @@ resumo = carregar_dados(
 if not resumo.empty:
     indicadores = resumo.iloc[0]
     colunas = st.columns(4)
-    colunas[0].metric(
-        "Clientes", f"{indicadores['total_clientes']:,.0f}".replace(",", ".")
-    )
+    colunas[0].metric("Clientes", f"{indicadores['total_clientes']:,.0f}".replace(",", "."))
     colunas[1].metric("Lojas", f"{indicadores['total_lojas']:,.0f}".replace(",", "."))
-    colunas[2].metric(
-        "Pedidos", f"{indicadores['total_pedidos']:,.0f}".replace(",", ".")
-    )
+    colunas[2].metric("Pedidos", f"{indicadores['total_pedidos']:,.0f}".replace(",", "."))
     colunas[3].metric("Faturamento", formatar_moeda(indicadores["faturamento_total"]))
+
 # ==========================
 # INSIGHTS AUTOMÁTICOS
 # ==========================
@@ -661,11 +605,7 @@ regioes_insight = carregar_dados(
     """
 )
 
-if (
-    not produtos_insight.empty
-    and not canais_insight.empty
-    and not regioes_insight.empty
-):
+if not produtos_insight.empty and not canais_insight.empty and not regioes_insight.empty:
     produto_top = produtos_insight.iloc[0]
     canal_top = canais_insight.iloc[0]
     regiao_top = regioes_insight.iloc[0]
@@ -691,9 +631,7 @@ if (
         )
         st.caption("Base de clientes")
 
-tab_comercial, tab_regional, tab_experiencia, tab_fluxo = st.tabs(
-    ["Comercial", "Regiões e lojas", "Clientes e operação", "Fluxo das entidades"]
-)
+tab_comercial, tab_regional, tab_experiencia, tab_fluxo = st.tabs(["Comercial", "Regiões e lojas", "Clientes e operação", "Fluxo das entidades"])
 
 with tab_comercial:
     coluna_produtos, coluna_canais = st.columns(2)
@@ -727,9 +665,7 @@ with tab_comercial:
             ),
             "grafico_produtos",
         )
-        st.dataframe(
-            produtos, hide_index=True, width="stretch", alt="Vendas por produto"
-        )
+        st.dataframe(produtos, hide_index=True, width="stretch", alt="Vendas por produto")
     with coluna_canais, st.container(border=True):
         st.subheader("Canais de venda")
         renderizar_grafico(
@@ -768,9 +704,7 @@ with tab_regional:
             ),
             "grafico_regioes",
         )
-        st.dataframe(
-            regioes, hide_index=True, width="stretch", alt="Indicadores por região"
-        )
+        st.dataframe(regioes, hide_index=True, width="stretch", alt="Indicadores por região")
 
 with tab_experiencia:
     coluna_satisfacao, coluna_turnos = st.columns(2)
