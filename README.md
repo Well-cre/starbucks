@@ -1,7 +1,11 @@
-<!-- Logo centralizado do projeto -->
-<p align="center">
-  <img src="https://upload.wikimedia.org/wikipedia/en/d/d3/Starbucks_Corporation_Logo_2011.svg" alt="Starbucks Logo" width="110" height="110">
-</p>
+# ☕ Starbucks Data Pipeline & Analytics
+
+> Um pipeline de dados de ponta a ponta construído com arquitetura Medallion utilizando Python, DuckDB e Streamlit, processando dados do ecossistema Starbucks.
+
+---
+
+## 📋 Sobre o Projeto
+Este projeto implementa um fluxo analítico completo (ELT) baseado no *Starbucks Store & Menu Dataset*, transformando dados brutos em marts de negócios estruturados para suporte à decisão e visualização em painel interativo.
 
 <h1 align="center">☕ Starbucks — Data Pipeline & Business Analytics</h1>
 
@@ -21,7 +25,35 @@
 ---
 
 > **Visão Geral:** Pipeline de dados ponta a ponta desenvolvido como projeto final da pós-graduação em Engenharia de Dados e IA. O sistema ingere, transforma e modela dados brutos do Starbucks utilizando uma arquitetura Medallion robusta, garantindo alta confiabilidade através de testes automatizados e entregando indicadores analíticos de alto valor.
+## 🗂️ Arquitetura e Granularidade (Grão das Tabelas)
+O pipeline segue rigorosamente a **Medallion Architecture**, dividida nas seguintes camadas:
 
+1. **Bronze (Raw):** Ingestão fiel dos arquivos brutos originais do Kaggle, mantendo a estrutura original para auditoria.
+2. **Silver (Transformed):** Limpeza, tipagem estrita, tratamento de nulos e padronização.
+   * **Grão da tabela de Lojas (`silver_stores`):** Uma linha por loja única identificada pelo seu ID/código.
+   * **Grão da tabela de Transações/Pedidos (`silver_orders`):** Uma linha por item/transação realizada.
+3. **Gold (Marts):** 10 tabelas agregadas prontas para consumo de negócios (KPIs, faturamento por período, ticket médio, etc.).
+   * **Grão dos Marts (ex: `01_vendas_mensais`):** Uma linha por mês/ano agregando o faturamento total da operação.
+
+---
+
+## 🤖 Reflexões e Desafios: Onde a IA Errou
+Durante o desenvolvimento assistido por IA, alguns desafios técnicos exigiram intervenção humana crítica e correção de rotas:
+* **Alucinação em Joins Complexos:** A IA inicialmente sugeriu um cruzamento entre tabelas na camada Gold que duplicava as métricas de faturamento devido a uma cardinalidade 1-N mal tratada. A correção exigiu reescrever a query utilizando agregações prévias (subconsultas) antes do `JOIN`.
+* **Tipagem de Datas no DuckDB:** O modelo gerou funções de parsing de data incompatíveis com a tipagem estrita do DuckDB, sendo necessário ajustar manualmente para conversões explícitas (`CAST AS DATE`).
+
+---
+
+## 📂 Estrutura do Repositório
+```text
+starbucks/
+├── data/               # (Ignorado pelo Git) Dados brutos e DuckDB local
+├── pipeline/           # Scripts de ingestão, transformação e marts
+├── sql/marts/          # Consultas SQL dos 10 marts analíticos
+├── test/               # Suíte de testes automatizados (pytest)
+├── ui.py               # Interface do Dashboard em Streamlit
+├── pyproject.toml      # Gerenciamento de dependências
+└── README.md
 ---
 
 ## 🏛️ Arquitetura do Pipeline
@@ -139,6 +171,11 @@ Os cinco testes de marts validam os indicadores de vendas, categorias, regiões 
 ```bash
 uv run mkdocs serve
 ```
+📄 Origem dos Dados e Licença
+Dataset: Obtido publicamente através do Kaggle (Starbucks Store & Menu Dataset).
+
+Licença: Este projeto tem fins estritamente educacionais e de portfólio. O uso de logotipos oficiais foi evitado para respeitar diretrizes de propriedade intelectual e marcas registradas.
+
 👤 Autor & Portfólio
 Desenvolvido com foco em engenharia de dados, IA e arquitetura moderna por Wellington P. Marani
 
