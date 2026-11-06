@@ -151,7 +151,6 @@ uv run ruff format .
 
 A suíte foi expandida para **14 testes automatizados**, cobrindo validações estritas de dados, integridade referencial e consistência de negócios:
 
-```text
 tests/test_gold_marts.py::test_gold_kpi_vendas_consistencia PASSED
 tests/test_gold_marts.py::test_gold_kpi_categoria_bebida_nao_vazio PASSED
 tests/test_marts.py::test_kpi_vendas PASSED
