@@ -10,7 +10,7 @@ Este projeto implementa um fluxo analítico completo (ELT) baseado no *Starbucks
 <h1 align="center">☕ Starbucks — Data Pipeline & Business Analytics</h1>
 
 <p align="center">
-  <em>Engenharia de Dados Moderna · Arquitetura Medallion · DuckDB · Streamlit</em>
+  <img src="https://img.shields.io/badge/Testes-14%2F14%20Passed-006241?style=flat-square&logo=pytest&logoColor=white" alt="pytest">
 </p>
 
 <p align="center">
@@ -135,16 +135,17 @@ uv run streamlit run ui.py
 
 ### Executar testes e verificações
 
+Com o `uv` configurado, podes executar a suíte completa de testes automatizados com suporte a relatório de cobertura:
+
 ```bash
-# Testes automatizados
-uv run pytest
+# Testes automatizados com cobertura
+uv run pytest --cov=pipeline -v
 
 # Verificar o código com Ruff
 uv run ruff check .
 
 # Formatar o código com Ruff
 uv run ruff format .
-```
 
 ### Resultado dos testes
 
