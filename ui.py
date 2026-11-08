@@ -1,3 +1,4 @@
+import base64
 import unicodedata
 from dataclasses import dataclass
 from decimal import Decimal
@@ -8,6 +9,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+from PIL import Image
 
 ROOT_DIR = Path(__file__).resolve().parent
 DATABASE_PATH = ROOT_DIR / "starbucks.duckdb"
@@ -509,10 +511,18 @@ if not DATABASE_PATH.is_file():
     st.error("Banco de dados não encontrado. Execute a ingestão antes de abrir o painel.")
     st.stop()
 
+# --- CARREGA O LOGO EM BASE64 PARA DENTRO DA CAIXA VERDE ---
+logo_path = ROOT_DIR / "logo_cafe.png"
+logo_src = ""
+if logo_path.is_file():
+    with open(logo_path, "rb") as f:
+        encoded_image = base64.b64encode(f.read()).decode("utf-8")
+    logo_src = f"data:image/png;base64,{encoded_image}"
+
 st.markdown(
-    """
+    f"""
     <div class="dashboard-header" style="display: flex; align-items: center; gap: 1.5rem;">
-        <img src="https://upload.wikimedia.org/wikipedia/en/d/d3/Starbucks_Corporation_Logo_2011.svg" width="75" alt="Starbucks Logo">
+        <img src="{logo_src}" width="75" alt="Logo Café" style="border-radius: 12px; background: #FFFFFF; padding: 4px; object-fit: cover;">
         <div>
             <h1>Inteligência de negócios</h1>
             <p>Uma visão clara de clientes, lojas, produtos, pedidos e vendas.</p>
