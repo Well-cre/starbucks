@@ -363,6 +363,29 @@ def _consultar_canais_geral(texto: str) -> Consulta | None:
     return None
 
 
+def _consultar_evolucao_mensal(texto: str) -> Consulta | None:
+    if "2025" in texto and any(termo in texto for termo in ("mes", "mensal")):
+        return Consulta(
+            "Vendas mensais em 2025",
+            """
+            SELECT
+                DATE_TRUNC('month', data_pedido)::DATE AS mes,
+                COUNT(*) AS total_pedidos,
+                SUM(valor_total) AS faturamento_total
+            FROM silver.pedidos
+            WHERE data_pedido >= DATE '2025-01-01'
+              AND data_pedido < DATE '2026-01-01'
+            GROUP BY mes
+            ORDER BY mes
+            """,
+            "mes",
+            "faturamento_total",
+            "line",
+            "Evolução mensal do faturamento em 2025",
+        )
+    return None
+
+
 def buscar_consulta(pergunta: str) -> Consulta:
     """Função principal orquestradora: delega a busca para funções de domínio específicas."""
     texto = normalizar(pergunta)
@@ -373,13 +396,14 @@ def buscar_consulta(pergunta: str) -> Consulta:
     for funcao_consulta in [
         lambda: _consultar_produto_regiao(texto, filtro_regiao),
         lambda: _consultar_canal_regiao(texto, filtro_regiao),
-        lambda: _consultar_clientes(texto),
         lambda: _consultar_satisfacao(texto),
+        lambda: _consultar_clientes(texto),
         lambda: _consultar_turnos(texto),
         lambda: _consultar_lojas(texto, menciona_lojas, filtro_regiao),
         lambda: _consultar_regioes(texto, filtro_regiao),
         lambda: _consultar_produtos_geral(texto),
         lambda: _consultar_canais_geral(texto),
+        lambda: _consultar_evolucao_mensal(texto),
     ]:
         resultado = funcao_consulta()
         if resultado is not None:
@@ -533,6 +557,27 @@ st.markdown(
 
 st.subheader("Explore os dados")
 st.caption("Faça uma pergunta sobre vendas, melhores lojas, região oeste, satisfação, produtos ou turnos.")
+with st.expander("💡 Ver exemplos de perguntas que pode fazer"):
+    st.markdown(
+        """
+        **Comercial/vendas**
+        - Quanto foi vendido ao longo do mês de 2025?
+        - Quais foram os produtos mais vendidos na região oeste?
+        - Quais são as vendas por região?
+
+        **Regiões/lojas**
+        - Quais lojas tiveram maior faturamento?
+        - Quais foram as lojas com maior faturamento na região norte?
+
+        **Clientes/experiência**
+        - Qual é o perfil dos clientes por faixa etária?
+        - Como está a satisfação dos clientes?
+
+        **Operação/turnos**
+        - Em que turno há mais pedidos?
+        - Qual é o horário de pico dos pedidos?
+        """
+    )
 pergunta = st.text_input(
     "Pergunta",
     placeholder="Ex.: Quais foram as melhores lojas da região oeste?",
