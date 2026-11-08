@@ -20,7 +20,7 @@ GRID = "#E2E8F0"
 CHART_COLORS = [GREEN, "#2D8063", "#78A98F", "#A9C9B8", "#D5E7DE"]
 
 st.set_page_config(
-    page_title="Starbucks | Inteligência de negócios",
+    page_title=" Starbucks Inteligência de negócios",
     page_icon="☕",
     layout="wide",
     initial_sidebar_state="collapsed",
