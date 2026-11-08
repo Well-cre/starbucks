@@ -20,7 +20,7 @@ GRID = "#E2E8F0"
 CHART_COLORS = [GREEN, "#2D8063", "#78A98F", "#A9C9B8", "#D5E7DE"]
 
 st.set_page_config(
-    page_title=" Starbucks Inteligência de negócios",
+    page_title="Starbucks | Inteligência de negócios",
     page_icon="☕",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -510,7 +510,7 @@ if not DATABASE_PATH.is_file():
     st.error("Banco de dados não encontrado. Execute a ingestão antes de abrir o painel.")
     st.stop()
 
-# --- CARREGA O LOGO EM BASE64 PARA DENTRO DA CAIXA VERDE ---
+# --- CARREGA O LOGO EM BASE64 PARA DENTRO DA CAIXA VERDE COM O NOME ---
 logo_path = ROOT_DIR / "logo_cafe.png"
 logo_src = ""
 if logo_path.is_file():
@@ -523,7 +523,7 @@ st.markdown(
     <div class="dashboard-header" style="display: flex; align-items: center; gap: 1.5rem;">
         <img src="{logo_src}" width="75" alt="Logo Café" style="border-radius: 12px; background: #FFFFFF; padding: 4px; object-fit: cover;">
         <div>
-            <h1>Inteligência de negócios</h1>
+            <h1>Starbucks | Inteligência de negócios</h1>
             <p>Uma visão clara de clientes, lojas, produtos, pedidos e vendas.</p>
         </div>
     </div>
@@ -576,45 +576,133 @@ if not resumo.empty:
     colunas[3].metric("Faturamento", formatar_moeda(indicadores["faturamento_total"]))
 
 # ==========================
-# INSIGHTS AUTOMÁTICOS
+# INSIGHTS AUTOMÁTICOS COM BOTÃO DE REFRESH
 # ==========================
 
-st.subheader("📊 Insights Automáticos")
+if "perspectiva_insights" not in st.session_state:
+    st.session_state.perspectiva_insights = "global"
 
-produtos_insight = carregar_dados(
-    """
-    SELECT categoria_bebida AS produto,
-           quantidade_pedidos,
-           faturamento_total
-    FROM gold.kpi_categoria_bebida
-    ORDER BY faturamento_total DESC
-    LIMIT 1
-    """
-)
+col_titulo_insights, col_botao_insights = st.columns([5, 2], vertical_alignment="center")
 
-canais_insight = carregar_dados(
-    """
-    SELECT canal_pedido AS canal,
-           total_pedidos,
-           faturamento_total
-    FROM gold.kpi_canal
-    ORDER BY total_pedidos DESC
-    LIMIT 1
-    """
-)
+with col_titulo_insights:
+    if st.session_state.perspectiva_insights == "mensal":
+        st.subheader("📊 Insights Automáticos (Visão por Mês)")
+        mes_insight = carregar_dados(
+            """
+            SELECT DATE_TRUNC('month', MAX(data_pedido))::DATE AS mes
+            FROM silver.pedidos
+            """
+        )
+        if not mes_insight.empty:
+            st.caption(f"Período: {mes_insight.iloc[0]['mes'].strftime('%m/%Y')}")
+    else:
+        st.subheader("📊 Insights Automáticos (Visão Global)")
 
-regioes_insight = carregar_dados(
-    """
-    SELECT regiao,
-           total_pedidos,
-           faturamento_total
-    FROM gold.kpi_regiao
-    ORDER BY faturamento_total DESC
-    LIMIT 1
-    """
-)
+with col_botao_insights:
+    proxima_perspectiva = "global" if st.session_state.perspectiva_insights == "mensal" else "mensal"
+    texto_botao_perspectiva = "🔄 Alternar para Visão Global" if proxima_perspectiva == "global" else "🔄 Alternar para Visão Temporal"
+    if st.button(texto_botao_perspectiva, key="btn_alternar_perspetiva"):
+        st.session_state.perspectiva_insights = proxima_perspectiva
+        st.rerun()
 
-if not produtos_insight.empty and not canais_insight.empty and not regioes_insight.empty:
+if st.session_state.perspectiva_insights == "mensal":
+    if not mes_insight.empty:
+        mes_referencia = str(mes_insight.iloc[0]["mes"])
+        produtos_insight = carregar_dados(
+            """
+            SELECT categoria_bebida AS produto,
+                   COUNT(*) AS quantidade_pedidos,
+                   SUM(valor_total) AS faturamento_total
+            FROM silver.pedidos
+            WHERE DATE_TRUNC('month', data_pedido)::DATE = CAST(? AS DATE)
+            GROUP BY categoria_bebida
+            ORDER BY faturamento_total DESC
+            LIMIT 1
+            """,
+            (mes_referencia,),
+        )
+        canais_insight = carregar_dados(
+            """
+            SELECT canal_pedido AS canal,
+                   COUNT(*) AS total_pedidos,
+                   SUM(valor_total) AS faturamento_total
+            FROM silver.pedidos
+            WHERE DATE_TRUNC('month', data_pedido)::DATE = CAST(? AS DATE)
+            GROUP BY canal_pedido
+            ORDER BY total_pedidos DESC
+            LIMIT 1
+            """,
+            (mes_referencia,),
+        )
+        regioes_insight = carregar_dados(
+            """
+            SELECT l.regiao,
+                   COUNT(*) AS total_pedidos,
+                   SUM(p.valor_total) AS faturamento_total
+            FROM silver.pedidos AS p
+            INNER JOIN silver.lojas AS l ON p.loja_id = l.loja_id
+            WHERE DATE_TRUNC('month', p.data_pedido)::DATE = CAST(? AS DATE)
+            GROUP BY l.regiao
+            ORDER BY faturamento_total DESC
+            LIMIT 1
+            """,
+            (mes_referencia,),
+        )
+        clientes_insight = carregar_dados(
+            """
+            SELECT COUNT(DISTINCT cliente_id) AS total_clientes
+            FROM silver.pedidos
+            WHERE DATE_TRUNC('month', data_pedido)::DATE = CAST(? AS DATE)
+            """,
+            (mes_referencia,),
+        )
+    else:
+        produtos_insight = pd.DataFrame()
+        canais_insight = pd.DataFrame()
+        regioes_insight = pd.DataFrame()
+        clientes_insight = pd.DataFrame()
+else:
+    produtos_insight = carregar_dados(
+        """
+        SELECT categoria_bebida AS produto,
+               quantidade_pedidos,
+               faturamento_total
+        FROM gold.kpi_categoria_bebida
+        ORDER BY faturamento_total DESC
+        LIMIT 1
+        """
+    )
+
+    canais_insight = carregar_dados(
+        """
+        SELECT canal_pedido AS canal,
+               total_pedidos,
+               faturamento_total
+        FROM gold.kpi_canal
+        ORDER BY total_pedidos DESC
+        LIMIT 1
+        """
+    )
+
+    regioes_insight = carregar_dados(
+        """
+        SELECT regiao,
+               total_pedidos,
+               faturamento_total
+        FROM gold.kpi_regiao
+        ORDER BY faturamento_total DESC
+        LIMIT 1
+        """
+    )
+
+    clientes_insight = carregar_dados(
+        """
+        SELECT COUNT(DISTINCT cliente_id) AS total_clientes
+        FROM silver.pedidos
+        """
+    )
+
+if not produtos_insight.empty and not canais_insight.empty and not regioes_insight.empty and not clientes_insight.empty:
     produto_top = produtos_insight.iloc[0]
     canal_top = canais_insight.iloc[0]
     regiao_top = regioes_insight.iloc[0]
@@ -636,9 +724,9 @@ if not produtos_insight.empty and not canais_insight.empty and not regioes_insig
     with c4:
         st.metric(
             "👥 Clientes ativos",
-            f"{int(indicadores['total_clientes']):,}".replace(",", "."),
+            f"{int(clientes_insight.iloc[0]['total_clientes']):,}".replace(",", "."),
         )
-        st.caption("Base de clientes")
+        st.caption("Clientes ativos no mês" if st.session_state.perspectiva_insights == "mensal" else "Base de clientes")
 
 tab_comercial, tab_regional, tab_experiencia, tab_fluxo = st.tabs(["Comercial", "Regiões e lojas", "Clientes e operação", "Fluxo das entidades"])
 
