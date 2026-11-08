@@ -165,7 +165,13 @@ tests/test_utils.py::test_formatar_moeda PASSED
 ============================== 14 passed in ~2.14s ==============================
 ```
 
-Os cinco testes de marts validam os indicadores de vendas, categorias, regiões (incluindo o `JOIN`), canais e satisfação em uma conexão DuckDB em memória. Os outros quatro verificam a quantidade de registros da camada Bronze, as tabelas e chaves da Silver, a integridade referencial e os marts da Gold, incluindo o faturamento total.
+A suíte foi expandida para **14 testes automatizados**, cobrindo validações estritas de dados, integridade referencial, consistência das camadas e funções utilitárias.
+
+Os testes estão divididos de forma modular:
+* **Testes de Marts e Gold (`test_marts.py` e `test_gold_marts.py`):** Validam os indicadores de vendas, categorias, regiões (incluindo o `JOIN`), canais, satisfação e consistência geral dos dados Gold em DuckDB.
+* **Testes de Pipeline e Camadas (`test_pipeline.py`):** Verificam a volumetria da camada Bronze, a contagem e integridade da Silver e a consolidação dos marts da Gold.
+* **Validações de Qualidade Silver (`test_silver_validations.py`):** Asseguram a ausência de valores nulos críticos e garantem que os valores totais de pedidos sejam estritamente positivos.
+* **Testes de Utilitários (`test_utils.py`):** Validam funções auxiliares, como a formatação correta de moeda (`R$`).
 
 ### 📖 Documentação Local
 
