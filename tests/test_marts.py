@@ -64,9 +64,7 @@ def test_kpi_vendas(conexao_memoria):
     """Valida agregação geral de vendas (total_pedidos, faturamento_total, ticket_medio)."""
     _executar_query_mart(conexao_memoria, "kpi_vendas")
 
-    resultado = conexao_memoria.execute(
-        "SELECT total_pedidos, faturamento_total, ticket_medio FROM gold.kpi_vendas"
-    ).fetchone()
+    resultado = conexao_memoria.execute("SELECT total_pedidos, faturamento_total, ticket_medio FROM gold.kpi_vendas").fetchone()
 
     assert resultado[0] == 3  # 3 pedidos inseridos
     assert float(resultado[1]) == 60.00  # 20 + 30 + 10
@@ -112,9 +110,7 @@ def test_kpi_canal(conexao_memoria):
     """Valida agrupamento por canal de pedido."""
     _executar_query_mart(conexao_memoria, "kpi_canal")
 
-    resultado = conexao_memoria.execute(
-        "SELECT canal_pedido, total_pedidos FROM gold.kpi_canal WHERE canal_pedido = 'Presencial'"
-    ).fetchone()
+    resultado = conexao_memoria.execute("SELECT canal_pedido, total_pedidos FROM gold.kpi_canal WHERE canal_pedido = 'Presencial'").fetchone()
 
     assert resultado[1] == 2
 

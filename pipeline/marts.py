@@ -179,10 +179,7 @@ def main() -> None:
                     resumo[1:],
                 )
             )
-            print(
-                f"Mart {SCHEMA_DESTINO}.{tabela}: "
-                f"{_formatar_quantidade(quantidade_linhas)} linhas; {metricas}."
-            )
+            print(f"Mart {SCHEMA_DESTINO}.{tabela}: {_formatar_quantidade(quantidade_linhas)} linhas; {metricas}.")
     finally:
         conexao.close()
 

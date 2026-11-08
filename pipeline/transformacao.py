@@ -224,9 +224,7 @@ def _criar_tabelas(conexao) -> None:
 
 def _contagem_e_nulos(conexao, tabela: str) -> tuple[int, int]:
     colunas = COLUNAS_TABELAS[tabela]
-    contagem_nulos = " + ".join(
-        f"COUNT(*) FILTER (WHERE {coluna} IS NULL)" for coluna in colunas
-    )
+    contagem_nulos = " + ".join(f"COUNT(*) FILTER (WHERE {coluna} IS NULL)" for coluna in colunas)
     quantidade, nulos = conexao.execute(
         f"""
         SELECT COUNT(*), {contagem_nulos}
@@ -246,20 +244,14 @@ def main() -> None:
     conexao = db.conectar()
     try:
         if not _tabela_origem_existe(conexao):
-            print(
-                "Execute primeiro a ingestão bronze: uv run python -m pipeline.ingestao"
-            )
+            print("Execute primeiro a ingestão bronze: uv run python -m pipeline.ingestao")
             sys.exit(1)
 
         _criar_tabelas(conexao)
 
         for tabela in ("clientes", "lojas", "pedidos"):
             quantidade, nulos = _contagem_e_nulos(conexao, tabela)
-            print(
-                f"Tabela {SCHEMA_DESTINO}.{tabela}: "
-                f"{_formatar_quantidade(quantidade)} linhas; "
-                f"{_formatar_quantidade(nulos)} nulos."
-            )
+            print(f"Tabela {SCHEMA_DESTINO}.{tabela}: {_formatar_quantidade(quantidade)} linhas; {_formatar_quantidade(nulos)} nulos.")
 
         quantidade_join = int(
             conexao.execute(
@@ -275,15 +267,10 @@ def main() -> None:
         )
         if quantidade_join != 100_000:
             raise RuntimeError(
-                "Teste de integridade referencial falhou: "
-                f"o JOIN retornou {_formatar_quantidade(quantidade_join)} "
-                "registros; esperado 100.000."
+                f"Teste de integridade referencial falhou: o JOIN retornou {_formatar_quantidade(quantidade_join)} registros; esperado 100.000."
             )
 
-        print(
-            "Teste de JOIN entre silver.pedidos, silver.clientes e silver.lojas: "
-            f"{_formatar_quantidade(quantidade_join)} registros."
-        )
+        print(f"Teste de JOIN entre silver.pedidos, silver.clientes e silver.lojas: {_formatar_quantidade(quantidade_join)} registros.")
     finally:
         conexao.close()
 

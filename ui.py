@@ -9,7 +9,6 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-from PIL import Image
 
 ROOT_DIR = Path(__file__).resolve().parent
 DATABASE_PATH = ROOT_DIR / "starbucks.duckdb"

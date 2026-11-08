@@ -71,16 +71,11 @@ def gravar(con, df, schema, tabela):
 
     con.register(nome_df, df)
     try:
-        con.execute(
-            f"CREATE OR REPLACE TABLE {schema_sql}.{tabela_sql} "
-            f"AS SELECT * FROM {nome_df_sql}"
-        )
+        con.execute(f"CREATE OR REPLACE TABLE {schema_sql}.{tabela_sql} AS SELECT * FROM {nome_df_sql}")
     finally:
         con.unregister(nome_df)
 
-    contagem = con.execute(
-        f"SELECT count(*) FROM {schema_sql}.{tabela_sql}"
-    ).fetchone()[0]
+    contagem = con.execute(f"SELECT count(*) FROM {schema_sql}.{tabela_sql}").fetchone()[0]
     return int(contagem)
 
 

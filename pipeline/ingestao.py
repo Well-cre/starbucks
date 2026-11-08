@@ -90,11 +90,7 @@ def main() -> None:
         conexao.close()
 
     quantidade_formatada = f"{quantidade:,}".replace(",", ".")
-    print(
-        f"Ingestão concluída: tabela "
-        f"{SCHEMA_DESTINO}.{TABELA_DESTINO} com "
-        f"{quantidade_formatada} linhas."
-    )
+    print(f"Ingestão concluída: tabela {SCHEMA_DESTINO}.{TABELA_DESTINO} com {quantidade_formatada} linhas.")
 
 
 if __name__ == "__main__":

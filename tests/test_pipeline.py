@@ -145,12 +145,8 @@ def test_camada_gold_marts(conexao):
     for mart in marts:
         assert _tabela_existe(conexao, "gold", mart)
 
-    faturamento_mart = conexao.execute("SELECT faturamento_total FROM gold.kpi_vendas").fetchone()[
-        0
-    ]
-    faturamento_pedidos = conexao.execute("SELECT SUM(valor_total) FROM silver.pedidos").fetchone()[
-        0
-    ]
+    faturamento_mart = conexao.execute("SELECT faturamento_total FROM gold.kpi_vendas").fetchone()[0]
+    faturamento_pedidos = conexao.execute("SELECT SUM(valor_total) FROM silver.pedidos").fetchone()[0]
     assert faturamento_mart == faturamento_pedidos == Decimal("1486677.08")
 
     for consulta, total_esperado in marts.values():
